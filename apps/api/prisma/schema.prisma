@@ -1,0 +1,17 @@
+// Prisma schema. Models are added in Phase 4 (after the Catalog domain is designed).
+// Database URL lives in prisma.config.ts (Prisma 7 style), not here.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+  runtime      = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MusicProvider {
+  DEEZER
+}
