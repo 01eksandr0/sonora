@@ -15,3 +15,29 @@ datasource db {
 enum MusicProvider {
   DEEZER
 }
+
+model User {
+  id                  String        @id @default(uuid())
+  email               String        @unique
+  passwordHash        String        @map("password_hash")
+  onboardingCompleted Boolean       @default(false) @map("onboarding_completed")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+
+  profile             UserProfile?
+
+  @@map("users")
+}
+
+model UserProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique @map("user_id")
+  displayName String?   @map("display_name")
+  avatarUrl   String?   @map("avatar_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}

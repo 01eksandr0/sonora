@@ -5,6 +5,8 @@ import { AppConfigModule } from './infrastructure/config/config.module.js'
 import { DatabaseModule } from './infrastructure/database/database.module.js'
 import { CacheModule } from './infrastructure/cache/cache.module.js'
 import { HealthModule } from './modules/health/health.module.js'
+import { UsersModule } from './modules/users/users.module.js'
+import { AuthModule } from './modules/auth/auth.module.js'
 
 @Module({
   imports: [
@@ -13,9 +15,8 @@ import { HealthModule } from './modules/health/health.module.js'
     DatabaseModule,
     CacheModule,
     HealthModule,
-    // Domain modules (added per roadmap phase):
-    // AuthModule, UsersModule, OnboardingModule, CatalogModule,
-    // PlaylistsModule, LibraryModule, HistoryModule, RecommendationsModule
+    UsersModule,
+    AuthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
