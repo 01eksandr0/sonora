@@ -18,6 +18,7 @@ import { RouterView } from 'vue-router'
 }
 .public-layout__content {
   flex: 1;
-  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
 }
 </style>

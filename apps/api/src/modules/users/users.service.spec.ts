@@ -19,14 +19,13 @@ describe('UsersService', () => {
         findUnique: vi.fn(),
         create: vi.fn(),
       },
-      $transaction: vi.fn(async (cb: (tx: typeof prismaMock) => Promise<unknown>) => cb(prismaMock)),
+      $transaction: vi.fn(async (cb: (tx: typeof prismaMock) => Promise<unknown>) =>
+        cb(prismaMock),
+      ),
     }
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UsersService,
-        { provide: PrismaService, useValue: prismaMock },
-      ],
+      providers: [UsersService, { provide: PrismaService, useValue: prismaMock }],
     }).compile()
 
     service = module.get<UsersService>(UsersService)

@@ -1,9 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import type {
-  AuthResponse,
-  UserProfile,
-  UserWithProfile,
-} from '@music-app/shared-types'
+import type { AuthResponse, UserProfile, UserWithProfile } from '@music-app/shared-types'
 
 export class UserProfileDto implements UserProfile {
   @ApiProperty({ example: 'b561c28c-5ad4-4d83-8a39-fb1d683ebdf5' })

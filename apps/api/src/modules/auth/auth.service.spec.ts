@@ -208,9 +208,9 @@ describe('AuthService', () => {
       })
       cacheServiceMock.get.mockResolvedValue(null)
 
-      await expect(
-        service.refresh('valid-token', resMock as unknown as Response),
-      ).rejects.toThrow(UnauthorizedException)
+      await expect(service.refresh('valid-token', resMock as unknown as Response)).rejects.toThrow(
+        UnauthorizedException,
+      )
     })
 
     it('rotates refresh token and sets new cookies', async () => {
