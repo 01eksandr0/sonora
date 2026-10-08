@@ -10,16 +10,38 @@ declare module 'vue-router' {
 }
 
 /**
+ * Navigation lifecycle:
  * anonymous → landing → login/register → authenticated → onboarding → application
  */
 export function registerGuards(router: Router) {
-  router.beforeEach((to) => {
+  router.beforeEach(async (to) => {
     const session = useSessionStore()
 
-    if (to.meta.requiresAuth && !session.isAuthenticated) {
-      return { name: ROUTE_NAMES.login, query: { redirect: to.fullPath } }
+    // 1. Initial hydration of session from HttpOnly cookies via GET /api/auth/me
+    if (!session.isInitialized) {
+      await session.initSession()
     }
 
+    // 2. Prevent authenticated users from visiting login or register pages
+    if (
+      session.isAuthenticated &&
+      (to.name === ROUTE_NAMES.login || to.name === ROUTE_NAMES.register)
+    ) {
+      if (!session.onboardingCompleted) {
+        return { name: ROUTE_NAMES.onboarding }
+      }
+      return { name: ROUTE_NAMES.home }
+    }
+
+    // 3. Protected routes requirement
+    if (to.meta.requiresAuth && !session.isAuthenticated) {
+      return {
+        name: ROUTE_NAMES.login,
+        query: { redirect: to.fullPath !== '/app' ? to.fullPath : undefined },
+      }
+    }
+
+    // 4. Force onboarding for new users entering protected routes
     if (
       to.meta.requiresAuth &&
       session.isAuthenticated &&
@@ -27,6 +49,15 @@ export function registerGuards(router: Router) {
       !to.meta.skipOnboardingCheck
     ) {
       return { name: ROUTE_NAMES.onboarding }
+    }
+
+    // 5. If onboarding is already completed, prevent re-entering onboarding page
+    if (
+      to.name === ROUTE_NAMES.onboarding &&
+      session.isAuthenticated &&
+      session.onboardingCompleted
+    ) {
+      return { name: ROUTE_NAMES.home }
     }
 
     return true
