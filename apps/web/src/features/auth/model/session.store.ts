@@ -2,12 +2,8 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { UserWithProfile } from '@music-app/shared-types'
 import { api } from '@/shared/api/client'
+import { ApiError } from '@music-app/api-client'
 
-/**
- * Client-side session state. Manages user authentication status,
- * onboarding completion flag, and handles initial session restoration
- * via the GET /api/auth/me endpoint.
- */
 export const useSessionStore = defineStore('session', () => {
   const user = ref<UserWithProfile | null>(null)
   const onboardingCompleted = ref(false)
@@ -34,13 +30,32 @@ export const useSessionStore = defineStore('session', () => {
     if (isInitialized.value) return user.value
 
     isLoading.value = true
+
     try {
-      const currentUser = await api.auth.me()
+      let currentUser: UserWithProfile
+
+      try {
+        currentUser = await api.auth.me()
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          throw error
+        }
+
+        await api.auth.refresh()
+
+        currentUser = await api.auth.me()
+      }
+
       setSession(currentUser)
       return currentUser
-    } catch {
-      setSession(null, false)
-      return null
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        setSession(null, false)
+        return null
+      }
+
+      // A network error or server error does not prove the session expired.
+      throw error
     } finally {
       isLoading.value = false
       isInitialized.value = true
