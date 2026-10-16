@@ -189,6 +189,62 @@ withDefaults(defineProps<Props>(), {
   gap: 17px;
 }
 
+.auth-form-wrap :deep(label) {
+  color: #b6b6bc;
+  display: grid;
+  font-size: 11px;
+  gap: 8px;
+}
+
+.auth-form-wrap :deep(input) {
+  background: #15151b;
+  border: 1px solid #2b2b33;
+  border-radius: 8px;
+  color: var(--sonora-text);
+  outline: 0;
+  padding: 13px;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s ease;
+}
+
+.auth-form-wrap :deep(input:focus) {
+  border-color: var(--sonora-accent);
+}
+
+.auth-form-wrap :deep(.auth-submit) {
+  justify-content: center;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.auth-form-wrap :deep(.auth-submit:disabled) {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.auth-form-wrap :deep(.auth-error) {
+  color: #ee8068;
+  font-size: 11px;
+  margin: 0;
+}
+
+.auth-form-wrap :deep(.auth-switch) {
+  color: var(--sonora-muted);
+  font-size: 11px;
+  margin-top: 25px;
+  text-align: center;
+}
+
+.auth-form-wrap :deep(.auth-switch a) {
+  color: var(--sonora-accent);
+  text-decoration: none;
+}
+
+.auth-form-wrap :deep(.auth-switch a:hover) {
+  text-decoration: underline;
+}
+
 @media (max-width: 720px) {
   .auth-page {
     display: block;

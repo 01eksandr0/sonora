@@ -4,17 +4,17 @@ import { RouterLink } from 'vue-router'
 import { IconArrowRight } from '@tabler/icons-vue'
 import { ROUTE_NAMES } from '@/app/router/routes'
 import { AuthLayout } from '@/widgets/auth-layout'
-import { FormAlert, SonoraButton, SonoraInput } from '@/shared/ui'
+import { FormAlert } from '@/shared/ui'
 
 const email = ref('')
 const isSubmitted = ref(false)
-const isLoading = ref(false)
+const pending = ref(false)
 
 function handleSubmit() {
   if (!email.value) return
-  isLoading.value = true
+  pending.value = true
   setTimeout(() => {
-    isLoading.value = false
+    pending.value = false
     isSubmitted.value = true
   }, 400)
 }
@@ -39,29 +39,16 @@ function handleSubmit() {
       </RouterLink>
     </div>
 
-    <form v-else class="auth-form" @submit.prevent="handleSubmit">
-      <SonoraInput
-        id="reset-email"
-        name="email"
-        v-model="email"
-        type="email"
-        label="Account email"
-        placeholder="you@example.com"
-        autocomplete="email"
-        required
-      />
+    <form v-else @submit.prevent="handleSubmit">
+      <label>
+        Account email
+        <input v-model="email" type="email" placeholder="you@example.com" required />
+      </label>
 
-      <SonoraButton
-        type="submit"
-        variant="primary"
-        size="md"
-        full-width
-        :loading="isLoading"
-        class="auth-submit"
-      >
-        {{ isLoading ? 'Working…' : 'Send reset link' }}
-        <IconArrowRight v-if="!isLoading" :size="16" />
-      </SonoraButton>
+      <button class="primary-button auth-submit" :disabled="pending" type="submit">
+        {{ pending ? 'Working…' : 'Send reset link' }}
+        <IconArrowRight :size="16" />
+      </button>
 
       <div class="auth-switch">
         <RouterLink :to="{ name: ROUTE_NAMES.login }"> Remember your password? Log in </RouterLink>
