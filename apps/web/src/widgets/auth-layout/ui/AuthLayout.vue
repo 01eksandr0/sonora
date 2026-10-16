@@ -16,45 +16,49 @@ withDefaults(defineProps<Props>(), {
   title: '',
   lede: '',
   backTo: () => ({ name: ROUTE_NAMES.landing }),
-  backText: 'Back to home',
+  backText: 'Back to Sonora',
 })
 </script>
 
 <template>
   <div class="auth-page">
-    <header class="auth-nav">
+    <div class="auth-visual">
       <RouterLink class="brand-mark" :to="{ name: ROUTE_NAMES.landing }">
         <span>so</span>nora
       </RouterLink>
 
-      <RouterLink class="back-link" :to="backTo">
+      <div class="auth-visual-art">
+        <div class="landing-orbit orbit-large" />
+        <div class="landing-orbit orbit-mid" />
+        <div class="landing-visual-disc">
+          <span>SO</span>
+        </div>
+      </div>
+
+      <p>
+        Listen closer.<br />
+        <em>Discover further.</em>
+      </p>
+    </div>
+
+    <div class="auth-panel">
+      <RouterLink class="auth-back" :to="backTo">
         <IconArrowLeft :size="15" />
         {{ backText }}
       </RouterLink>
-    </header>
 
-    <main class="auth-main">
-      <div class="auth-container">
-        <div class="auth-card">
-          <div class="card-header">
-            <span v-if="eyebrow" class="eyebrow accent-text">{{ eyebrow }}</span>
+      <div class="auth-form-wrap">
+        <p v-if="eyebrow" class="eyebrow accent-text">{{ eyebrow }}</p>
 
-            <h1>
-              <slot name="title">{{ title }}</slot>
-            </h1>
+        <h1>
+          <slot name="title">{{ title }}</slot>
+        </h1>
 
-            <p v-if="lede" class="auth-lede">{{ lede }}</p>
-          </div>
+        <p v-if="lede" class="auth-intro">{{ lede }}</p>
 
-          <slot />
-        </div>
+        <slot />
       </div>
-    </main>
-
-    <footer class="auth-footer">
-      <span>sonora © 2026</span>
-      <span>Listen closer.</span>
-    </footer>
+    </div>
   </div>
 </template>
 
@@ -62,114 +66,152 @@ withDefaults(defineProps<Props>(), {
 .auth-page {
   background: var(--sonora-bg, #0b0b0f);
   color: var(--sonora-text, #f2f1ed);
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
 }
 
-.auth-page::before {
-  content: '';
+.auth-visual {
+  background: #24362c;
+  overflow: hidden;
+  padding: 32px 5vw;
+  position: relative;
+}
+
+.auth-visual .brand-mark {
+  margin: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.auth-visual-art {
+  height: min(42vw, 520px);
   position: absolute;
-  top: -120px;
-  right: -100px;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(216, 243, 91, 0.08) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  right: 6%;
+  top: 19%;
+  width: min(42vw, 520px);
 }
 
-.auth-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 5vw;
-  position: relative;
+.auth-visual-art::after {
+  background: var(--sonora-accent, #d8f35b);
+  border-radius: 50%;
+  content: '';
+  height: 26%;
+  left: 37%;
+  position: absolute;
+  top: 37%;
+  width: 26%;
+}
+
+.auth-visual-art .landing-visual-disc {
+  display: none;
+}
+
+.landing-orbit {
+  border: 1px solid rgba(233, 241, 193, 0.58);
+  border-radius: 50%;
+  position: absolute;
   z-index: 1;
 }
 
-.back-link {
-  display: inline-flex;
+.orbit-large {
+  height: 94%;
+  left: 3%;
+  top: 3%;
+  width: 94%;
+}
+
+.orbit-mid {
+  height: 67%;
+  left: 16%;
+  top: 16%;
+  width: 67%;
+}
+
+.auth-visual p {
+  bottom: 10%;
+  font-size: 34px;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  position: absolute;
+  margin: 0;
+}
+
+.auth-visual p em,
+.auth-visual p :deep(em) {
+  color: var(--sonora-accent, #d8f35b);
+  font-style: normal;
+}
+
+.auth-panel {
+  padding: 32px 8vw;
+}
+
+.auth-back {
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
   color: var(--sonora-muted);
+  display: inline-flex;
+  font-size: 11px;
+  gap: 8px;
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
-.back-link:hover {
+.auth-back:hover {
   color: var(--sonora-text);
 }
 
-.auth-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 5vw 60px;
-  position: relative;
-  z-index: 1;
+.auth-form-wrap {
+  margin: 17vh auto 0;
+  max-width: 380px;
 }
 
-.auth-container {
-  width: 100%;
-  max-width: 440px;
+.auth-form-wrap h1 {
+  font-size: clamp(40px, 5vw, 64px);
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+  margin: 16px 0;
 }
 
-.auth-card {
-  background: var(--sonora-surface, #17171e);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(16px);
-}
-
-.card-header {
-  margin-bottom: 28px;
-}
-
-.card-header h1 {
-  font-size: clamp(32px, 5vw, 42px);
-  letter-spacing: -0.05em;
-  line-height: 1.05;
-  margin: 12px 0 10px;
-}
-
-.card-header :deep(em) {
-  color: var(--sonora-accent);
+.auth-form-wrap h1 :deep(em) {
+  color: var(--sonora-accent, #d8f35b);
   font-style: normal;
 }
 
-.auth-lede {
+.auth-intro {
   color: var(--sonora-muted);
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
+  font-size: 12px;
+  margin-bottom: 35px;
 }
 
-.auth-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px 5vw;
-  font-size: 11px;
-  color: var(--sonora-muted);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  position: relative;
-  z-index: 1;
+.auth-form-wrap :deep(form) {
+  display: grid;
+  gap: 17px;
 }
 
-@media (max-width: 520px) {
-  .auth-card {
-    padding: 28px 20px;
-    border-radius: 20px;
+@media (max-width: 720px) {
+  .auth-page {
+    display: block;
   }
-
-  .card-header h1 {
-    font-size: 32px;
+  .auth-visual {
+    min-height: 260px;
+    padding: 25px 5vw;
+  }
+  .auth-visual-art {
+    height: 230px;
+    right: -5%;
+    top: 12%;
+    width: 230px;
+  }
+  .auth-visual p {
+    bottom: 25px;
+    font-size: 25px;
+  }
+  .auth-panel {
+    padding: 25px 8vw 50px;
+  }
+  .auth-form-wrap {
+    margin-top: 70px;
   }
 }
 </style>

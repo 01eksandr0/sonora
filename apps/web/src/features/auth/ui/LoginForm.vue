@@ -2,10 +2,10 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
-import { IconLock, IconMail } from '@tabler/icons-vue'
+import { IconArrowRight } from '@tabler/icons-vue'
 import { ApiError } from '@music-app/api-client'
 import { ROUTE_NAMES } from '@/app/router/routes'
-import { FormAlert, SonoraButton, SonoraInput } from '@/shared/ui'
+import { SonoraButton, SonoraInput } from '@/shared/ui'
 import { toValidationSchema } from '@/shared/lib/validation'
 import { loginSchema, type LoginFormValues } from '../model/auth.schema'
 import { useLoginMutation } from '../model/use-login.mutation'
@@ -49,23 +49,17 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <form class="auth-form" @submit.prevent="onSubmit" novalidate>
-    <FormAlert v-if="errorMessage" type="error" :message="errorMessage" />
-
     <SonoraInput
       id="login-email"
       name="email"
       v-model="email"
       type="email"
       label="Email"
-      placeholder="listener@sonora.fm"
+      placeholder="you@example.com"
       autocomplete="email"
       :error="emailError"
       required
-    >
-      <template #prefix>
-        <IconMail :size="16" />
-      </template>
-    </SonoraInput>
+    />
 
     <SonoraInput
       id="login-password"
@@ -73,14 +67,11 @@ const onSubmit = handleSubmit(async (values) => {
       v-model="password"
       type="password"
       label="Password"
-      placeholder="••••••••"
+      placeholder="At least 8 characters"
       autocomplete="current-password"
       :error="passwordError"
       required
     >
-      <template #prefix>
-        <IconLock :size="16" />
-      </template>
       <template #label-extra>
         <RouterLink :to="{ name: ROUTE_NAMES.forgotPassword }" class="forgot-link">
           Forgot password?
@@ -88,31 +79,33 @@ const onSubmit = handleSubmit(async (values) => {
       </template>
     </SonoraInput>
 
+    <p v-if="errorMessage" class="auth-error" role="alert">
+      {{ errorMessage }}
+    </p>
+
     <SonoraButton
       type="submit"
       variant="primary"
       size="md"
       full-width
-      :loading="isSubmitting || loginMutation.isPending.value"
-      class="submit-button"
+      :loading="isSubmitting"
+      class="auth-submit"
     >
-      Log in
+      {{ isSubmitting ? 'Working…' : 'Log in' }}
+      <IconArrowRight v-if="!isSubmitting" :size="16" />
     </SonoraButton>
 
-    <div class="form-footer">
-      <span>Don't have an account?</span>
-      <RouterLink :to="{ name: ROUTE_NAMES.register }" class="switch-link">
-        Start listening
-      </RouterLink>
+    <div class="auth-switch">
+      New to Sonora?
+      <RouterLink :to="{ name: ROUTE_NAMES.register }"> Create an account </RouterLink>
     </div>
   </form>
 </template>
 
 <style scoped>
 .auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  gap: 17px;
   width: 100%;
 }
 
@@ -127,29 +120,36 @@ const onSubmit = handleSubmit(async (values) => {
   color: var(--sonora-accent);
 }
 
-.submit-button {
-  margin-top: 6px;
-}
-
-.form-footer {
-  display: flex;
-  align-items: center;
+.auth-submit {
   justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--sonora-muted);
   margin-top: 8px;
+  width: 100%;
 }
 
-.switch-link {
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.auth-error {
+  color: #ee8068;
+  font-size: 11px;
+  margin: 0;
+}
+
+.auth-switch {
+  color: var(--sonora-muted);
+  font-size: 11px;
+  margin-top: 25px;
+  text-align: center;
+}
+
+.auth-switch a {
   color: var(--sonora-accent);
-  font-weight: 600;
   text-decoration: none;
-  transition: opacity 0.15s ease;
 }
 
-.switch-link:hover {
-  opacity: 0.85;
+.auth-switch a:hover {
   text-decoration: underline;
 }
 </style>

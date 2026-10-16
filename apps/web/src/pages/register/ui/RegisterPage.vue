@@ -5,10 +5,10 @@ import { RegisterForm } from '@/features/auth'
 
 <template>
   <AuthLayout
-    eyebrow="A new way to listen"
-    lede="Create an account to tune into music curated for the way you actually listen."
+    eyebrow="Begin your profile"
+    lede="Create an account and let your taste lead the way."
   >
-    <template #title> Start listening to<br /><em>your sound.</em> </template>
+    <template #title> Make it yours. </template>
 
     <RegisterForm />
   </AuthLayout>

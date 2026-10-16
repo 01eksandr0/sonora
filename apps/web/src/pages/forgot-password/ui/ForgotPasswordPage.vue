@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { IconMail } from '@tabler/icons-vue'
+import { IconArrowRight } from '@tabler/icons-vue'
 import { ROUTE_NAMES } from '@/app/router/routes'
 import { AuthLayout } from '@/widgets/auth-layout'
 import { FormAlert, SonoraButton, SonoraInput } from '@/shared/ui'
@@ -46,14 +46,10 @@ function handleSubmit() {
         v-model="email"
         type="email"
         label="Account email"
-        placeholder="listener@sonora.fm"
+        placeholder="you@example.com"
         autocomplete="email"
         required
-      >
-        <template #prefix>
-          <IconMail :size="16" />
-        </template>
-      </SonoraInput>
+      />
 
       <SonoraButton
         type="submit"
@@ -61,15 +57,14 @@ function handleSubmit() {
         size="md"
         full-width
         :loading="isLoading"
-        class="submit-button"
+        class="auth-submit"
       >
-        Send reset link
+        {{ isLoading ? 'Working…' : 'Send reset link' }}
+        <IconArrowRight v-if="!isLoading" :size="16" />
       </SonoraButton>
 
-      <div class="form-footer">
-        <RouterLink :to="{ name: ROUTE_NAMES.login }" class="switch-link">
-          Remember your password? Log in
-        </RouterLink>
+      <div class="auth-switch">
+        <RouterLink :to="{ name: ROUTE_NAMES.login }"> Remember your password? Log in </RouterLink>
       </div>
     </form>
   </AuthLayout>
@@ -77,38 +72,40 @@ function handleSubmit() {
 
 <style scoped>
 .auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  gap: 17px;
   width: 100%;
 }
 
-.submit-button {
-  margin-top: 6px;
-}
-
-.form-footer {
-  display: flex;
-  align-items: center;
+.auth-submit {
   justify-content: center;
-  font-size: 13px;
-  color: var(--sonora-muted);
   margin-top: 8px;
+  width: 100%;
 }
 
-.switch-link {
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.auth-switch {
+  color: var(--sonora-muted);
+  font-size: 11px;
+  margin-top: 25px;
+  text-align: center;
+}
+
+.auth-switch a {
   color: var(--sonora-accent);
   text-decoration: none;
-  font-weight: 600;
 }
 
-.switch-link:hover {
+.auth-switch a:hover {
   text-decoration: underline;
 }
 
 .success-box {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 20px;
 }
 

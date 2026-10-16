@@ -4,8 +4,8 @@ import { LoginForm } from '@/features/auth'
 </script>
 
 <template>
-  <AuthLayout eyebrow="Welcome back" lede="Pick up right where your sound left off.">
-    <template #title> Log in to<br /><em>Sonora.</em> </template>
+  <AuthLayout eyebrow="Welcome back" lede="Pick up where your listening left off.">
+    <template #title> Good to see you. </template>
 
     <LoginForm />
   </AuthLayout>

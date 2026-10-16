@@ -129,9 +129,9 @@ function handleInput(event: Event) {
 }
 
 .sonora-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--sonora-text);
+  font-size: 11px;
+  font-weight: 500;
+  color: #b6b6bc;
   letter-spacing: -0.01em;
 }
 
@@ -144,29 +144,22 @@ function handleInput(event: Event) {
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--sonora-card, #1d1d25);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #15151b;
+  border: 1px solid #2b2b33;
+  border-radius: 8px;
+  transition: border-color 0.15s ease;
 }
 
 .input-wrapper:hover:not(.is-disabled) {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(35, 35, 45, 0.95);
+  border-color: #3d3d48;
 }
 
 .input-wrapper:focus-within {
   border-color: var(--sonora-accent);
-  box-shadow: 0 0 0 3px rgba(216, 243, 91, 0.15);
-  background: rgba(25, 25, 33, 1);
 }
 
 .has-error .input-wrapper {
-  border-color: #ff6b6b;
-}
-
-.has-error .input-wrapper:focus-within {
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+  border-color: #ee8068;
 }
 
 .is-disabled .input-wrapper {
@@ -176,13 +169,13 @@ function handleInput(event: Event) {
 
 .sonora-input {
   width: 100%;
-  height: 46px;
-  padding: 0 16px;
+  height: 44px;
+  padding: 0 14px;
   background: transparent;
   border: none;
   outline: none;
   color: var(--sonora-text);
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
 }
 
@@ -234,8 +227,8 @@ function handleInput(event: Event) {
 
 .error-text {
   margin: 0;
-  font-size: 12px;
-  color: #ff6b6b;
+  font-size: 11px;
+  color: #ee8068;
   line-height: 1.3;
 }
 
