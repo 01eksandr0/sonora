@@ -20,6 +20,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import type { AuthResponse, UserWithProfile } from '@music-app/shared-types'
 import type { Request, Response } from 'express'
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js'
@@ -38,6 +39,7 @@ export class AuthController {
     private readonly users: UsersService,
   ) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('register')
   @ApiOperation({ summary: 'Register a new user account' })
   @ApiCreatedResponse({
@@ -53,6 +55,7 @@ export class AuthController {
     return this.auth.register(dto, res)
   }
 
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in with email and password' })
