@@ -7,6 +7,7 @@ import { CacheModule } from './infrastructure/cache/cache.module.js'
 import { HealthModule } from './modules/health/health.module.js'
 import { UsersModule } from './modules/users/users.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
+import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { AuthModule } from './modules/auth/auth.module.js'
     HealthModule,
     UsersModule,
     AuthModule,
+    OnboardingModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule { }
