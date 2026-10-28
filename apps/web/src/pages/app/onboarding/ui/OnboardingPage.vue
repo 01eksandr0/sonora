@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -136,22 +135,17 @@ onMounted(async () => {
 
 <template>
   <main class="onboarding">
-<header class="onboarding__header">
-  <RouterLink to="/" class="onboarding__logo">
-    <span>so</span><span class="onboarding__logo-white">nora</span>
-  </RouterLink>
+    <header class="onboarding__header">
+      <RouterLink to="/" class="onboarding__logo">
+        <span>so</span><span class="onboarding__logo-white">nora</span>
+      </RouterLink>
 
-  <span class="onboarding__step">
-   {{ step + 1 }} / {{ steps.length }}
-  </span>
-</header>
+      <span class="onboarding__step"> {{ step + 1 }} / {{ steps.length }} </span>
+    </header>
 
     <section class="onboarding__content">
       <div class="onboarding__progress">
-        <div
-          class="onboarding__progress-fill"
-          :style="{ width: `${progress}%` }"
-        />
+        <div class="onboarding__progress-fill" :style="{ width: `${progress}%` }" />
       </div>
 
       <template v-if="isLoading">
@@ -185,13 +179,8 @@ onMounted(async () => {
         </p>
 
         <footer class="onboarding__footer">
-          <button
-            v-if="step > 0"
-            type="button"
-            class="onboarding__back"
-            @click="goBack"
-          >
-           <span aria-hidden="true">‹</span>
+          <button v-if="step > 0" type="button" class="onboarding__back" @click="goBack">
+            <span aria-hidden="true">‹</span>
             Back
           </button>
           <span v-else />
@@ -221,7 +210,6 @@ onMounted(async () => {
     </section>
   </main>
 </template>
-
 <style scoped>
 .onboarding {
   min-height: 100vh;
@@ -325,7 +313,9 @@ onMounted(async () => {
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .taste-option:hover {
@@ -334,6 +324,12 @@ onMounted(async () => {
 }
 
 .taste-option--selected {
+  border-color: #292930;
+  background: #22252a;
+  box-shadow: inset 0 0 0 1px var(--sonora-accent, #cde43d);
+}
+
+.taste-option--selected:hover {
   border-color: var(--sonora-accent, #cde43d);
   background: #22252a;
 }

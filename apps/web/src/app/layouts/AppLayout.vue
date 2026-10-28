@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
@@ -31,7 +30,6 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
     </main>
   </div>
 </template>
-
 <style scoped>
 .app-layout {
   min-height: 100dvh;

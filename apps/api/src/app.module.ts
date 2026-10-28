@@ -22,4 +22,4 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule { }
+export class AppModule {}

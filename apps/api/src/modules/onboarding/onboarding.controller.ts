@@ -16,10 +16,7 @@ export class OnboardingController {
   }
 
   @Post()
-  complete(
-    @CurrentUser() user: UserWithProfileEntity,
-    @Body() body: CompleteOnboardingRequest,
-  ) {
+  complete(@CurrentUser() user: UserWithProfileEntity, @Body() body: CompleteOnboardingRequest) {
     return this.onboardingService.complete(user.id, body)
   }
 }

@@ -1,21 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 import { PrismaService } from '../../infrastructure/database/prisma.service.js'
-import type {
-  CompleteOnboardingRequest,
-  OnboardingOptionsResponse,
-} from '@music-app/shared-types'
+import type { CompleteOnboardingRequest, OnboardingOptionsResponse } from '@music-app/shared-types'
 
 const OPTIONS: OnboardingOptionsResponse = {
-  genres: [
-    'Alternative',
-    'Electronic',
-    'Hip-hop',
-    'Jazz',
-    'Indie',
-    'Metal',
-    'Pop',
-    'Rock',
-  ],
+  genres: ['Alternative', 'Electronic', 'Hip-hop', 'Jazz', 'Indie', 'Metal', 'Pop', 'Rock'],
   artists: [
     'M83',
     'FKA twigs',
@@ -40,21 +28,15 @@ const OPTIONS: OnboardingOptionsResponse = {
 
 @Injectable()
 export class OnboardingService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   getOptions(): OnboardingOptionsResponse {
     return OPTIONS
   }
 
   async complete(userId: string, data: CompleteOnboardingRequest) {
-    if (
-      !data.genres?.length ||
-      !data.artists?.length ||
-      !data.moods?.length
-    ) {
-      throw new BadRequestException(
-        'Select at least one genre, artist, and mood.',
-      )
+    if (!data.genres?.length || !data.artists?.length || !data.moods?.length) {
+      throw new BadRequestException('Select at least one genre, artist, and mood.')
     }
 
     const options = this.getOptions()
