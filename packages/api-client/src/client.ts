@@ -1,6 +1,8 @@
 import type {
   AuthResponse,
+  CompleteOnboardingRequest,
   LoginRequest,
+  OnboardingOptionsResponse,
   RegisterRequest,
   UserWithProfile,
 } from '@music-app/shared-types'
@@ -13,8 +15,7 @@ export interface HealthResponse {
 }
 
 /**
- * Typed API client. Domain namespaces (catalog, playlists, library, history…)
- * are added here as the corresponding backend modules appear.
+ * Typed API client. Domain namespaces are added as their backend modules appear.
  */
 export function createApiClient(options: HttpClientOptions) {
   const http = new HttpClient(options)
@@ -30,6 +31,11 @@ export function createApiClient(options: HttpClientOptions) {
       logout: () => http.post<{ success: boolean }>('/auth/logout'),
       refresh: () => http.post<AuthResponse>('/auth/refresh'),
       me: () => http.get<UserWithProfile>('/auth/me'),
+    },
+    onboarding: {
+      getOptions: () => http.get<OnboardingOptionsResponse>('/onboarding/options'),
+      complete: (body: CompleteOnboardingRequest) =>
+        http.post<{ success: boolean }>('/onboarding', { body }),
     },
   }
 }
