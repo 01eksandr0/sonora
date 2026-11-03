@@ -19,6 +19,7 @@ export const envSchema = z.object({
     .transform((value) => value === 'true'),
 
   DEEZER_API_URL: z.url().default('https://api.deezer.com'),
+  DEEZER_API_TOKENS: z.string().default(''),
 })
 
 export type Env = z.infer<typeof envSchema>
