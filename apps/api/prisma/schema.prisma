@@ -16,6 +16,14 @@ enum MusicProvider {
   DEEZER
 }
 
+enum TasteSignalSource {
+  ONBOARDING
+  LIKE
+  LISTEN
+  SKIP
+  MANUAL
+}
+
 model User {
   id                  String        @id @default(uuid())
   email               String        @unique
@@ -25,6 +33,7 @@ model User {
   updatedAt           DateTime      @updatedAt @map("updated_at")
 
   profile             UserProfile?
+  tasteProfile        TasteProfile?
 
   @@map("users")
 }
@@ -40,4 +49,47 @@ model UserProfile {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
+}
+
+model TasteProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  moods     String[] @default([])
+  languages String[] @default([])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  genres  TasteGenrePreference[]
+  artists TasteArtistPreference[]
+
+  @@map("taste_profiles")
+}
+
+model TasteGenrePreference {
+  id        String            @id @default(uuid())
+  profileId String            @map("profile_id")
+  genre     String
+  weight    Float             @default(1.0)
+  source    TasteSignalSource @default(ONBOARDING)
+  createdAt DateTime          @default(now()) @map("created_at")
+
+  profile TasteProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, genre])
+  @@map("taste_genre_preferences")
+}
+
+model TasteArtistPreference {
+  id         String            @id @default(uuid())
+  profileId  String            @map("profile_id")
+  artistName String            @map("artist_name")
+  weight     Float             @default(1.0)
+  source     TasteSignalSource @default(ONBOARDING)
+  createdAt  DateTime          @default(now()) @map("created_at")
+
+  profile TasteProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, artistName])
+  @@map("taste_artist_preferences")
 }
