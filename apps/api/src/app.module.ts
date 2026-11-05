@@ -8,6 +8,7 @@ import { HealthModule } from './modules/health/health.module.js'
 import { UsersModule } from './modules/users/users.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
 import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
+import { CatalogModule } from './modules/catalog/catalog.module.js'
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
     UsersModule,
     AuthModule,
     OnboardingModule,
+    CatalogModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule { }

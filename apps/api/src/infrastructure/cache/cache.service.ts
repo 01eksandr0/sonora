@@ -10,7 +10,7 @@ import { REDIS_CLIENT } from './redis.constants.js'
 export class CacheService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name)
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) { }
 
   async onModuleInit() {
     await this.redis.connect()
@@ -28,7 +28,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
     const raw = JSON.stringify(value)
-    if (ttlSeconds) {
+    if (ttlSeconds !== undefined) {
       await this.redis.set(key, raw, 'EX', ttlSeconds)
     } else {
       await this.redis.set(key, raw)

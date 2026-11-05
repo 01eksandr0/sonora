@@ -5,6 +5,14 @@ import type {
   OnboardingOptionsResponse,
   RegisterRequest,
   UserWithProfile,
+  AlbumDetails,
+  ArtistDetails,
+  ChartResult,
+  Genre,
+  Paginated,
+  SearchResult,
+  TrackDetails,
+  TrackSummary,
 } from '@music-app/shared-types'
 import { HttpClient, type HttpClientOptions } from './http.js'
 
@@ -36,6 +44,26 @@ export function createApiClient(options: HttpClientOptions) {
       getOptions: () => http.get<OnboardingOptionsResponse>('/onboarding/options'),
       complete: (body: CompleteOnboardingRequest) =>
         http.post<{ success: boolean }>('/onboarding', { body }),
+    },
+    catalog: {
+      search: (params: { q: string; limit?: number; offset?: number }) =>
+        http.get<SearchResult>('/catalog/search', { query: params }),
+      getTrack: (id: string) =>
+        http.get<TrackDetails>(`/catalog/tracks/${encodeURIComponent(id)}`),
+      getAlbum: (id: string) =>
+        http.get<AlbumDetails>(`/catalog/albums/${encodeURIComponent(id)}`),
+      getArtist: (id: string) =>
+        http.get<ArtistDetails>(`/catalog/artists/${encodeURIComponent(id)}`),
+      getArtistTopTracks: (
+        id: string,
+        params?: { limit?: number; offset?: number },
+      ) =>
+        http.get<Paginated<TrackSummary>>(
+          `/catalog/artists/${encodeURIComponent(id)}/top-tracks`,
+          { query: params },
+        ),
+      getGenres: () => http.get<Genre[]>('/catalog/genres'),
+      getCharts: () => http.get<ChartResult>('/catalog/charts'),
     },
   }
 }
