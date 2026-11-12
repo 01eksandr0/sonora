@@ -4,6 +4,7 @@ import type {
   LoginRequest,
   OnboardingOptionsResponse,
   RegisterRequest,
+  RecommendationCollectionResponse,
   UserWithProfile,
   AlbumDetails,
   ArtistDetails,
@@ -48,22 +49,20 @@ export function createApiClient(options: HttpClientOptions) {
     catalog: {
       search: (params: { q: string; limit?: number; offset?: number }) =>
         http.get<SearchResult>('/catalog/search', { query: params }),
-      getTrack: (id: string) =>
-        http.get<TrackDetails>(`/catalog/tracks/${encodeURIComponent(id)}`),
-      getAlbum: (id: string) =>
-        http.get<AlbumDetails>(`/catalog/albums/${encodeURIComponent(id)}`),
+      getTrack: (id: string) => http.get<TrackDetails>(`/catalog/tracks/${encodeURIComponent(id)}`),
+      getAlbum: (id: string) => http.get<AlbumDetails>(`/catalog/albums/${encodeURIComponent(id)}`),
       getArtist: (id: string) =>
         http.get<ArtistDetails>(`/catalog/artists/${encodeURIComponent(id)}`),
-      getArtistTopTracks: (
-        id: string,
-        params?: { limit?: number; offset?: number },
-      ) =>
-        http.get<Paginated<TrackSummary>>(
-          `/catalog/artists/${encodeURIComponent(id)}/top-tracks`,
-          { query: params },
-        ),
+      getArtistTopTracks: (id: string, params?: { limit?: number; offset?: number }) =>
+        http.get<Paginated<TrackSummary>>(`/catalog/artists/${encodeURIComponent(id)}/top-tracks`, {
+          query: params,
+        }),
       getGenres: () => http.get<Genre[]>('/catalog/genres'),
       getCharts: () => http.get<ChartResult>('/catalog/charts'),
+    },
+    recommendations: {
+      getCollection: () =>
+        http.get<RecommendationCollectionResponse>('/recommendations/collection'),
     },
   }
 }
