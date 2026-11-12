@@ -15,7 +15,7 @@ import type {
   TrackDetails,
   TrackSummary,
 } from '@music-app/shared-types'
-import { HttpClient, type HttpClientOptions } from './http.js'
+import { ApiError, HttpClient, type HttpClientOptions } from './http.js'
 
 export interface HealthResponse {
   status: 'ok' | 'error'
@@ -61,8 +61,16 @@ export function createApiClient(options: HttpClientOptions) {
       getCharts: () => http.get<ChartResult>('/catalog/charts'),
     },
     recommendations: {
-      getCollection: () =>
-        http.get<RecommendationCollectionResponse>('/recommendations/collection'),
+      getCollection: async () => {
+        try {
+          return await http.get<RecommendationCollectionResponse>('/recommendations/collection')
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 202) {
+            return { status: 'refreshing' as const }
+          }
+          throw error
+        }
+      },
     },
   }
 }

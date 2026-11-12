@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { AppHeader } from '@/widgets/app-header'
 import { AppSidebar } from '@/widgets/app-sidebar'
-import { MusicPlayer } from '@/widgets/music-player'
 import { ROUTE_NAMES } from '@/app/router/routes'
 
 const route = useRoute()
@@ -21,8 +20,6 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
           <RouterView />
         </main>
       </div>
-
-      <MusicPlayer class="app-layout__player" />
     </template>
 
     <main v-else class="app-layout__onboarding">
@@ -35,7 +32,7 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 232px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .app-layout__sidebar {
@@ -54,10 +51,6 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
   flex: 1;
   min-width: 0;
   padding: 0;
-}
-
-.app-layout__player {
-  grid-column: 1 / -1;
 }
 
 .app-layout--onboarding {
