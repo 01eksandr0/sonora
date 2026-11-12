@@ -25,28 +25,29 @@ enum TasteSignalSource {
 }
 
 model User {
-  id                  String        @id @default(uuid())
-  email               String        @unique
-  passwordHash        String        @map("password_hash")
-  onboardingCompleted Boolean       @default(false) @map("onboarding_completed")
-  createdAt           DateTime      @default(now()) @map("created_at")
-  updatedAt           DateTime      @updatedAt @map("updated_at")
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  passwordHash        String   @map("password_hash")
+  onboardingCompleted Boolean  @default(false) @map("onboarding_completed")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
-  profile             UserProfile?
-  tasteProfile        TasteProfile?
+  profile                  UserProfile?
+  tasteProfile             TasteProfile?
+  recommendationCollection RecommendationCollection?
 
   @@map("users")
 }
 
 model UserProfile {
-  id          String    @id @default(uuid())
-  userId      String    @unique @map("user_id")
-  displayName String?   @map("display_name")
-  avatarUrl   String?   @map("avatar_url")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  displayName String?  @map("display_name")
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_profiles")
 }
@@ -59,7 +60,7 @@ model TasteProfile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   genres  TasteGenrePreference[]
   artists TasteArtistPreference[]
 
@@ -103,8 +104,8 @@ model Artist {
   createdAt  DateTime      @default(now()) @map("created_at")
   updatedAt  DateTime      @updatedAt @map("updated_at")
 
-  tracks     Track[]
-  albums     Album[]
+  tracks Track[]
+  albums Album[]
 
   @@unique([provider, providerId])
   @@map("artists")
@@ -121,8 +122,8 @@ model Album {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
-  artist      Artist        @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  tracks      Track[]
+  artist Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tracks Track[]
 
   @@unique([provider, providerId])
   @@map("albums")
@@ -142,8 +143,8 @@ model Track {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
-  artist       Artist        @relation(fields: [artistId], references: [id], onDelete: Cascade)
-  album        Album         @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  album  Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerId])
   @@map("tracks")
@@ -160,4 +161,21 @@ model Genre {
 
   @@unique([provider, providerId])
   @@map("genres")
+}
+
+model RecommendationCollection {
+  id               String    @id @default(uuid())
+  userId           String    @unique @map("user_id")
+  tracks           Json
+  refreshedAt      DateTime? @map("refreshed_at")
+  nextRefreshAt    DateTime? @map("next_refresh_at")
+  refreshToken     String?   @map("refresh_token")
+  refreshLockUntil DateTime? @map("refresh_lock_until")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([nextRefreshAt])
+  @@map("recommendation_collections")
 }
