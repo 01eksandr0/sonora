@@ -65,10 +65,11 @@ export class DeezerHttpClient {
 
       try {
         res = await fetch(url.toString(), {
-          headers: {
-            Accept: 'application/json',
-          },
-        })
+  headers: {
+    Accept: 'application/json',
+  },
+  signal: AbortSignal.timeout(5000),
+})
       } catch (err) {
         this.logger.error(
           `Network error on attempt ${attempt}/${maxRetries}: ${err instanceof Error ? err.message : String(err)

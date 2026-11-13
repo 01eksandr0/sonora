@@ -5,4 +5,7 @@ export const queryKeys = {
     search: (query: string, limit: number, offset: number) =>
       ['catalog', 'search', query, limit, offset] as const,
   },
+  recommendations: {
+    collection: ['recommendations', 'collection'] as const,
+  },
 } as const
