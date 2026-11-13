@@ -11,7 +11,7 @@ const collection = useQuery({
   retry: false,
   refetchInterval: (query) => {
     const data = query.state.data
-    return data && 'status' in data && data.status === 'refreshing' ? 5000 : false
+    return data && 'status' in data && data.status === 'refreshing' ? data.retryAfter * 1000 : false
   },
 })
 
@@ -70,6 +70,9 @@ const isRefreshing = computed(() => {
           </div>
           <span class="album">{{ track.album.title }}</span>
         </div>
+        <p v-if="tracks.length < 50" class="collection-note">
+          Showing {{ tracks.length }} of 50 available songs.
+        </p>
       </div>
     </section>
   </main>
@@ -154,6 +157,12 @@ h1 span {
 
 .track:hover {
   background: #15151b;
+}
+
+.collection-note {
+  color: var(--sonora-muted);
+  font-size: 11px;
+  margin: 14px 4px;
 }
 
 .track-number {

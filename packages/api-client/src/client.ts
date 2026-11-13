@@ -66,7 +66,7 @@ export function createApiClient(options: HttpClientOptions) {
           return await http.get<RecommendationCollectionResponse>('/recommendations/collection')
         } catch (error) {
           if (error instanceof ApiError && error.status === 202) {
-            return { status: 'refreshing' as const }
+            return { status: 'refreshing' as const, retryAfter: 2 as const }
           }
           throw error
         }

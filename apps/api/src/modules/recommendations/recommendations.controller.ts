@@ -14,16 +14,16 @@ export class RecommendationsController {
 
   @Get('collection')
   @ApiOperation({ summary: 'Get the current user recommendation collection' })
-   async getCollection(
-  @CurrentUser() user: UserWithProfileEntity,
-  @Res({ passthrough: true })
-  response: { setHeader: (name: string, value: string) => void },
-): Promise<RecommendationCollectionResponse> {
+  async getCollection(
+    @CurrentUser() user: UserWithProfileEntity,
+    @Res({ passthrough: true })
+    response: { setHeader: (name: string, value: string) => void },
+  ): Promise<RecommendationCollectionResponse> {
     try {
       return await this.recommendationsService.getCollection(user.id)
     } catch (error) {
       if (error instanceof HttpException && error.getStatus() === 202) {
-        response.setHeader('Retry-After', '5')
+        response.setHeader('Retry-After', '2')
       }
 
       throw error

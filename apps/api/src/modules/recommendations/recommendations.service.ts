@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common'
 import { randomUUID } from 'node:crypto'
 import type { RecommendationCollectionResponse } from '@music-app/shared-types'
 import { Prisma } from '../../generated/prisma/browser.js'
@@ -8,6 +8,8 @@ import { trackCollectionSchema } from './track-summary.schema.js'
 
 @Injectable()
 export class RecommendationsService {
+  private readonly logger = new Logger(RecommendationsService.name)
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly catalogService: CatalogService,
@@ -73,6 +75,19 @@ export class RecommendationsService {
       }
 
       if (collection?.refreshLockUntil && collection.refreshLockUntil > new Date()) {
+        const parsedTracks = trackCollectionSchema.safeParse(collection.tracks)
+
+        if (parsedTracks.success && collection.refreshedAt) {
+          return {
+            type: 'cached' as const,
+            response: {
+              tracks: parsedTracks.data,
+              refreshedAt: collection.refreshedAt.toISOString(),
+              nextRefreshAt: collection.nextRefreshAt?.toISOString() ?? null,
+            },
+          }
+        }
+
         return { type: 'locked' as const }
       }
 
@@ -100,7 +115,8 @@ export class RecommendationsService {
     if (claim.type === 'locked') {
       throw new HttpException(
         {
-          message: 'Recommendation collection is being refreshed',
+          status: 'refreshing',
+          retryAfter: 2,
         },
         HttpStatus.ACCEPTED,
       )
@@ -196,6 +212,11 @@ export class RecommendationsService {
         nextRefreshAt: nextRefreshAt.toISOString(),
       }
     } catch (error) {
+      this.logger.error(
+        'Failed to refresh recommendation collection',
+        error instanceof Error ? error.stack : String(error),
+      )
+
       await this.prisma.recommendationCollection.updateMany({
         where: {
           userId,
