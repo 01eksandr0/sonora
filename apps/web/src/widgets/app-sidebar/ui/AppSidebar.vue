@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import { IconHome, IconLibrary, IconSearch } from '@tabler/icons-vue'
+import { IconHome, IconLibrary, IconSearch, IconSettings, IconUser } from '@tabler/icons-vue'
 import { ROUTE_NAMES } from '@/app/router/routes'
 
 const route = useRoute()
@@ -8,6 +8,8 @@ const links = [
   { name: ROUTE_NAMES.home, label: 'Home', icon: IconHome },
   { name: ROUTE_NAMES.search, label: 'Search', icon: IconSearch },
   { name: ROUTE_NAMES.library, label: 'Library', icon: IconLibrary },
+  { name: ROUTE_NAMES.profile, label: 'Profile', icon: IconUser },
+  { name: ROUTE_NAMES.settings, label: 'Settings', icon: IconSettings },
 ]
 </script>
 

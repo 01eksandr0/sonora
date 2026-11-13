@@ -13,6 +13,7 @@ export const ROUTE_NAMES = {
   album: 'album',
   playlist: 'playlist',
   library: 'library',
+  profile: 'profile',
   settings: 'settings',
 } as const
 
@@ -59,6 +60,11 @@ export const routes: RouteRecordRaw[] = [
         path: 'library',
         name: ROUTE_NAMES.library,
         component: () => import('@/pages/app/library'),
+      },
+      {
+        path: 'profile',
+        name: ROUTE_NAMES.profile,
+        component: () => import('@/pages/app/profile'),
       },
       {
         path: 'settings',
