@@ -11,11 +11,13 @@ import {
 } from '@tabler/icons-vue'
 import { useCatalogSearch } from '@/features/catalog/model/use-catalog-search.query'
 import { ROUTE_NAMES } from '@/app/router/routes'
+import { useSessionStore } from '@/features/auth'
 
-type SearchTab = 'all' | 'tracks' | 'artists' | 'albums'
+type SearchTab = 'all' | 'tracks' | 'artists' | 'albums' | 'playlists'
 
 const route = useRoute()
 const router = useRouter()
+const session = useSessionStore()
 
 const searchQuery = ref('')
 const activeTab = ref<SearchTab>('all')
@@ -63,11 +65,16 @@ const hasNoResults = computed(
     !hasAnyResults.value,
 )
 
+const userName = computed(() => {
+  const full = session.user?.profile?.displayName || session.user?.email?.split('@')[0] || 'Alex'
+  return full.split(/\s+/)[0] || 'Alex'
+})
+
 const tasteRecommendations = [
-  { title: 'Night drive', tone: 'art-coral', subtitle: 'Made for you' },
-  { title: 'Fresh finds', tone: 'art-olive', subtitle: 'Made for you' },
-  { title: 'Deep focus', tone: 'art-blue', subtitle: 'Made for you' },
-  { title: 'New releases', tone: 'art-violet', subtitle: 'Made for you' },
+  { title: 'Night drive', tone: 'art-coral' },
+  { title: 'Fresh finds', tone: 'art-olive' },
+  { title: 'Deep focus', tone: 'art-blue' },
+  { title: 'New releases', tone: 'art-violet' },
 ]
 
 function clearQuery() {
@@ -84,20 +91,19 @@ function formatDuration(seconds: number): string {
 </script>
 
 <template>
-  <main class="content-wrap section-page search-page">
-    <p class="eyebrow accent-text">EXPLORE</p>
+  <div class="content-wrap section-page">
+    <p class="eyebrow accent-text">Explore</p>
     <h1>Search the sound</h1>
 
-    <!-- Search Input -->
     <div class="search-screen">
+      <!-- Large Search Input -->
       <div class="large-search" role="search">
         <IconSearch :size="20" class="search-icon" />
         <input
           v-model="searchQuery"
-          type="search"
+          autofocus
           placeholder="What do you want to listen to?"
           aria-label="Search for music"
-          autofocus
         />
         <button
           v-if="searchQuery"
@@ -110,66 +116,48 @@ function formatDuration(seconds: number): string {
         </button>
       </div>
 
-      <!-- Categories / Filter Tabs -->
-      <div v-if="debouncedQuery.trim().length >= 2 && !isError" class="search-categories">
-        <button
-          type="button"
-          :class="{ 'is-active': activeTab === 'all' }"
-          @click="activeTab = 'all'"
-        >
-          All
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': activeTab === 'tracks' }"
-          @click="activeTab = 'tracks'"
-        >
-          Tracks <span v-if="totalTracks">({{ totalTracks }})</span>
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': activeTab === 'artists' }"
-          @click="activeTab = 'artists'"
-        >
-          Artists <span v-if="totalArtists">({{ totalArtists }})</span>
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': activeTab === 'albums' }"
-          @click="activeTab = 'albums'"
-        >
-          Albums <span v-if="totalAlbums">({{ totalAlbums }})</span>
-        </button>
+      <!-- Search Categories (Pills) -->
+      <div class="search-categories">
+        <span :class="{ 'is-active': activeTab === 'all' }" @click="activeTab = 'all'">
+          Tracks
+        </span>
+        <span :class="{ 'is-active': activeTab === 'artists' }" @click="activeTab = 'artists'">
+          Artists
+        </span>
+        <span :class="{ 'is-active': activeTab === 'albums' }" @click="activeTab = 'albums'">
+          Albums
+        </span>
+        <span :class="{ 'is-active': activeTab === 'playlists' }" @click="activeTab = 'playlists'">
+          Playlists
+        </span>
       </div>
 
-      <!-- Initial State (Query < 2 chars) -->
-      <div v-if="debouncedQuery.trim().length < 2" class="initial-browse">
+      <!-- Initial State (Browse your taste) -->
+      <template v-if="debouncedQuery.trim().length < 2">
         <div class="section-heading">
           <h3>Browse your taste</h3>
-          <button type="button" @click="searchQuery = 'Rock'">
+          <button type="button" @click="searchQuery = 'Fresh finds'">
             Recommended <IconChevronRight :size="15" />
           </button>
         </div>
         <div class="recommend-grid">
-          <button
+          <div
             v-for="item in tasteRecommendations"
             :key="item.title"
-            type="button"
-            class="recommend-card"
+            class="recommend-card cursor-pointer"
+            role="button"
+            tabindex="0"
             @click="searchQuery = item.title"
           >
-            <div class="art-wrap">
-              <div :class="['artwork aspect-square', item.tone]">
-                <span class="artwork-shape" />
-                <span class="artwork-shape artwork-shape-two" />
-              </div>
-              <span class="card-play"><IconPlayerPlayFilled :size="14" /></span>
+            <div :class="['artwork aspect-square rounded-[18px]', item.tone]" aria-hidden="true">
+              <span class="artwork-shape" />
+              <span class="artwork-shape artwork-shape-two" />
             </div>
             <strong>{{ item.title }}</strong>
-            <span>{{ item.subtitle }}</span>
-          </button>
+            <span>Made for {{ userName }}</span>
+          </div>
         </div>
-      </div>
+      </template>
 
       <!-- Loading State -->
       <p v-else-if="isFetching && !hasAnyResults" class="search-hint">
@@ -183,21 +171,21 @@ function formatDuration(seconds: number): string {
         <button type="button" class="primary-button" @click="() => refetch()">Try again</button>
       </div>
 
-      <!-- No Results State -->
+      <!-- No Results / Empty State -->
       <div v-else-if="hasNoResults" class="section-empty">
         <div class="empty-orbit" aria-hidden="true">
           <span />
           <span />
         </div>
-        <h2>No results found</h2>
+        <h2>Try searching for an artist, album, or track</h2>
         <p>Keep exploring and your collection will grow with you.</p>
         <button type="button" class="primary-button" @click="clearQuery">
-          Clear search <IconChevronRight :size="15" />
+          Discover music <IconChevronRight :size="15" />
         </button>
       </div>
 
       <!-- Results View -->
-      <div v-else-if="hasAnyResults" class="search-results">
+      <div v-else-if="hasAnyResults">
         <!-- Tracks Section -->
         <section
           v-if="(activeTab === 'all' || activeTab === 'tracks') && tracksList.length > 0"
@@ -226,7 +214,9 @@ function formatDuration(seconds: number): string {
                 :alt="`${track.album?.title || track.title} cover`"
                 class="track-thumb"
               />
-              <div v-else class="artwork size-11 art-rust"><span class="artwork-shape" /></div>
+              <div v-else class="artwork size-11 art-rust rounded-xl">
+                <span class="artwork-shape" />
+              </div>
               <span class="track-name">
                 <strong>{{ track.title }}</strong>
                 <span>{{ track.artist?.name }}</span>
@@ -270,6 +260,7 @@ function formatDuration(seconds: number): string {
                 <div v-else class="artwork aspect-square art-olive artist-avatar-fallback">
                   <span class="artwork-shape" />
                 </div>
+                <span class="card-play"><IconPlayerPlayFilled :size="14" /></span>
               </div>
               <strong>{{ artist.name }}</strong>
               <span>Artist</span>
@@ -309,6 +300,7 @@ function formatDuration(seconds: number): string {
                 <div v-else class="artwork aspect-square art-blue">
                   <span class="artwork-shape" />
                 </div>
+                <span class="card-play"><IconPlayerPlayFilled :size="14" /></span>
               </div>
               <strong>{{ album.title }}</strong>
               <span>{{ album.artist?.name }}</span>
@@ -317,23 +309,10 @@ function formatDuration(seconds: number): string {
         </section>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
-.search-page {
-  display: flex;
-  flex-direction: column;
-}
-
-.search-screen {
-  width: 100%;
-}
-
-.large-search {
-  position: relative;
-}
-
 .search-icon {
   flex-shrink: 0;
 }
@@ -364,6 +343,10 @@ function formatDuration(seconds: number): string {
   color: #ee8068;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .track-thumb {
   border-radius: 10px;
   height: 44px;
@@ -389,9 +372,5 @@ function formatDuration(seconds: number): string {
   display: block;
   object-fit: cover;
   width: 100%;
-}
-
-.initial-browse {
-  margin-top: 36px;
 }
 </style>

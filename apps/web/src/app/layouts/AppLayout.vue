@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { AppHeader } from '@/widgets/app-header'
 import { AppSidebar } from '@/widgets/app-sidebar'
+import { MusicPlayer } from '@/widgets/music-player'
 import { ROUTE_NAMES } from '@/app/router/routes'
 
 const route = useRoute()
@@ -10,16 +11,18 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
 </script>
 
 <template>
-  <div class="app-layout" :class="{ 'app-layout--onboarding': isOnboarding }">
+  <div class="sonora-shell min-h-full" :class="{ 'app-layout--onboarding': isOnboarding }">
     <template v-if="!isOnboarding">
-      <AppSidebar class="app-layout__sidebar" />
+      <AppSidebar />
 
-      <div class="app-layout__main">
+      <div class="sonora-main">
         <AppHeader />
-        <main class="app-layout__content">
+        <main class="sonora-content">
           <RouterView />
         </main>
       </div>
+
+      <MusicPlayer />
     </template>
 
     <main v-else class="app-layout__onboarding">
@@ -27,34 +30,30 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
     </main>
   </div>
 </template>
+
 <style scoped>
-.app-layout {
-  min-height: 100dvh;
-  display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
-}
-
-.app-layout__sidebar {
-  grid-row: 1;
-  grid-column: 1;
-}
-
-.app-layout__main {
+.sonora-shell {
+  background: var(--sonora-bg);
+  color: var(--sonora-text);
   display: flex;
-  flex-direction: column;
-  min-width: 0;
-  grid-column: 2;
+  min-height: 100vh;
+  padding-bottom: 92px;
 }
 
-.app-layout__content {
+.sonora-main {
+  margin-left: 232px;
+  min-width: 0;
+  width: calc(100% - 232px);
+}
+
+.sonora-content {
   flex: 1;
   min-width: 0;
-  padding: 0;
 }
 
 .app-layout--onboarding {
   display: block;
+  padding-bottom: 0;
 }
 
 .app-layout__onboarding {
@@ -62,19 +61,22 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
 }
 
 @media (max-width: 900px) {
-  .app-layout {
-    grid-template-columns: 78px minmax(0, 1fr);
+  .sonora-main {
+    margin-left: 78px;
+    width: calc(100% - 78px);
   }
 }
 
 @media (max-width: 640px) {
-  .app-layout {
+  .sonora-shell {
     display: block;
-    padding-bottom: 64px;
+    padding-bottom: 116px;
   }
 
-  .app-layout__main {
-    min-height: calc(100dvh - 64px);
+  .sonora-main {
+    margin-left: 0;
+    min-height: calc(100dvh - 116px);
+    width: 100%;
   }
 }
 </style>

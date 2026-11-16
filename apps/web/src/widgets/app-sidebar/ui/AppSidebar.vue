@@ -45,93 +45,86 @@ const userInitials = computed(() => {
 </script>
 
 <template>
-  <div class="sidebar-wrapper">
-    <aside class="sonora-sidebar">
-      <RouterLink class="brand-mark" :to="{ name: ROUTE_NAMES.home }">
-        <span>so</span>nora
-      </RouterLink>
+  <aside class="sonora-sidebar">
+    <RouterLink class="brand-mark" :to="{ name: ROUTE_NAMES.home }">
+      <span>so</span>nora
+    </RouterLink>
 
-      <div class="nav-group">
-        <p class="nav-label">Discover</p>
-        <RouterLink
-          v-for="link in discoverLinks"
-          :key="link.name"
-          class="nav-item"
-          :class="{ 'is-active': route.name === link.name }"
-          :to="{ name: link.name }"
-        >
-          <component :is="link.icon" :size="19" :stroke-width="1.8" />
-          <span>{{ link.label }}</span>
-        </RouterLink>
-      </div>
-
-      <div class="nav-group library-group">
-        <p class="nav-label">Your library</p>
-        <RouterLink
-          v-for="link in libraryLinks"
-          :key="link.name"
-          class="nav-item"
-          :class="{ 'is-active': route.name === link.name }"
-          :to="{ name: link.name }"
-        >
-          <component :is="link.icon" :size="19" :stroke-width="1.8" />
-          <span>{{ link.label }}</span>
-        </RouterLink>
-      </div>
-
-      <div class="sidebar-bottom">
-        <RouterLink
-          class="nav-item"
-          :class="{ 'is-active': route.name === ROUTE_NAMES.settings }"
-          :to="{ name: ROUTE_NAMES.settings }"
-        >
-          <IconSettings :size="19" :stroke-width="1.8" />
-          <span>Settings</span>
-        </RouterLink>
-
-        <RouterLink class="profile-chip" :to="{ name: ROUTE_NAMES.profile }">
-          <div class="avatar">{{ userInitials }}</div>
-          <div>
-            <strong>{{ userName }}</strong>
-            <span>Listening now</span>
-          </div>
-          <IconDots :size="17" />
-        </RouterLink>
-      </div>
-    </aside>
-
-    <!-- Mobile Navigation Bar -->
-    <nav class="mobile-nav" aria-label="Mobile navigation">
+    <div class="nav-group">
+      <p class="nav-label">Discover</p>
       <RouterLink
-        v-for="link in mobileLinks"
+        v-for="link in discoverLinks"
         :key="link.name"
-        class="mobile-nav-item"
+        class="nav-item"
         :class="{ 'is-active': route.name === link.name }"
         :to="{ name: link.name }"
       >
-        <component :is="link.icon" :size="18" :stroke-width="1.8" />
+        <component :is="link.icon" :size="19" :stroke-width="1.8" />
         <span>{{ link.label }}</span>
       </RouterLink>
-    </nav>
-  </div>
+    </div>
+
+    <div class="nav-group library-group">
+      <p class="nav-label">Your library</p>
+      <RouterLink
+        v-for="link in libraryLinks"
+        :key="link.name"
+        class="nav-item"
+        :class="{ 'is-active': route.name === link.name }"
+        :to="{ name: link.name }"
+      >
+        <component :is="link.icon" :size="19" :stroke-width="1.8" />
+        <span>{{ link.label }}</span>
+      </RouterLink>
+    </div>
+
+    <div class="sidebar-bottom">
+      <RouterLink
+        class="nav-item"
+        :class="{ 'is-active': route.name === ROUTE_NAMES.settings }"
+        :to="{ name: ROUTE_NAMES.settings }"
+      >
+        <IconSettings :size="19" :stroke-width="1.8" />
+        <span>Settings</span>
+      </RouterLink>
+
+      <RouterLink class="profile-chip" :to="{ name: ROUTE_NAMES.profile }">
+        <div class="avatar">{{ userInitials }}</div>
+        <div>
+          <strong>{{ userName }}</strong>
+          <span>Listening now</span>
+        </div>
+        <IconDots :size="17" />
+      </RouterLink>
+    </div>
+  </aside>
+
+  <!-- Mobile Navigation Bar -->
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <RouterLink
+      v-for="link in mobileLinks"
+      :key="link.name"
+      class="mobile-nav-item"
+      :class="{ 'is-active': route.name === link.name }"
+      :to="{ name: link.name }"
+    >
+      <component :is="link.icon" :size="18" :stroke-width="1.8" />
+      <span>{{ link.label }}</span>
+    </RouterLink>
+  </nav>
 </template>
 
 <style scoped>
-.sidebar-wrapper {
-  height: 100%;
-}
-
 .sonora-sidebar {
   background: var(--sonora-sidebar);
   border-right: 1px solid #24242b;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 100dvh;
+  inset: 0 auto 0 0;
   padding: 32px 20px 20px;
-  position: sticky;
-  top: 0;
-  width: 100%;
+  position: fixed;
+  width: 232px;
   z-index: 5;
 }
 
@@ -252,6 +245,7 @@ const userInitials = computed(() => {
 @media (max-width: 900px) {
   .sonora-sidebar {
     padding-inline: 12px;
+    width: 78px;
   }
 
   .brand-mark {
