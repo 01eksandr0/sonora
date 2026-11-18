@@ -1,4 +1,3 @@
-
 import type {
   AlbumDetails,
   AlbumSummary,
@@ -111,7 +110,7 @@ export class DeezerMapper {
       tracksCount: dto.nb_tracks ?? null,
       duration: dto.duration ?? null,
       explicit: dto.explicit_lyrics ?? false,
-      tracks: dto.tracks?.data?.map(DeezerMapper.toTrackSummary) ?? [],
+      tracks: dto.tracks?.data?.map((item) => DeezerMapper.toTrackSummary(item)) ?? [],
     }
   }
 
@@ -126,9 +125,9 @@ export class DeezerMapper {
 
   static toChartResult(dto: DeezerChartDto): ChartResult {
     return {
-      tracks: dto.tracks?.data?.map(DeezerMapper.toTrackSummary) ?? [],
-      albums: dto.albums?.data?.map(DeezerMapper.toAlbumSummary) ?? [],
-      artists: dto.artists?.data?.map(DeezerMapper.toArtistSummary) ?? [],
+      tracks: dto.tracks?.data?.map((item) => DeezerMapper.toTrackSummary(item)) ?? [],
+      albums: dto.albums?.data?.map((item) => DeezerMapper.toAlbumSummary(item)) ?? [],
+      artists: dto.artists?.data?.map((item) => DeezerMapper.toArtistSummary(item)) ?? [],
     }
   }
 
