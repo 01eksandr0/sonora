@@ -11,18 +11,18 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
 </script>
 
 <template>
-  <div class="app-layout" :class="{ 'app-layout--onboarding': isOnboarding }">
+  <div class="sonora-shell min-h-full" :class="{ 'app-layout--onboarding': isOnboarding }">
     <template v-if="!isOnboarding">
-      <AppSidebar class="app-layout__sidebar" />
+      <AppSidebar />
 
-      <div class="app-layout__main">
+      <div class="sonora-main">
         <AppHeader />
-        <main class="app-layout__content">
+        <main class="sonora-content">
           <RouterView />
         </main>
       </div>
 
-      <MusicPlayer class="app-layout__player" />
+      <MusicPlayer />
     </template>
 
     <main v-else class="app-layout__onboarding">
@@ -30,38 +30,53 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
     </main>
   </div>
 </template>
+
 <style scoped>
-.app-layout {
-  min-height: 100dvh;
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: 1fr auto;
-}
-
-.app-layout__sidebar {
-  grid-row: 1;
-}
-
-.app-layout__main {
+.sonora-shell {
+  background: var(--sonora-bg);
+  color: var(--sonora-text);
   display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 92px;
+}
+
+.sonora-main {
+  margin-left: 232px;
   min-width: 0;
+  width: calc(100% - 232px);
 }
 
-.app-layout__content {
+.sonora-content {
   flex: 1;
-  padding: 1.5rem;
-}
-
-.app-layout__player {
-  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .app-layout--onboarding {
   display: block;
+  padding-bottom: 0;
 }
 
 .app-layout__onboarding {
   min-height: 100dvh;
+}
+
+@media (max-width: 900px) {
+  .sonora-main {
+    margin-left: 78px;
+    width: calc(100% - 78px);
+  }
+}
+
+@media (max-width: 640px) {
+  .sonora-shell {
+    display: block;
+    padding-bottom: 116px;
+  }
+
+  .sonora-main {
+    margin-left: 0;
+    min-height: calc(100dvh - 116px);
+    width: 100%;
+  }
 }
 </style>

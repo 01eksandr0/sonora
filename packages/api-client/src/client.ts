@@ -4,6 +4,7 @@ import type {
   LoginRequest,
   OnboardingOptionsResponse,
   RegisterRequest,
+  RecommendationCollectionResponse,
   UserWithProfile,
   AlbumDetails,
   ArtistDetails,
@@ -14,7 +15,7 @@ import type {
   TrackDetails,
   TrackSummary,
 } from '@music-app/shared-types'
-import { HttpClient, type HttpClientOptions } from './http.js'
+import { ApiError, HttpClient, type HttpClientOptions } from './http.js'
 
 export interface HealthResponse {
   status: 'ok' | 'error'
@@ -48,22 +49,28 @@ export function createApiClient(options: HttpClientOptions) {
     catalog: {
       search: (params: { q: string; limit?: number; offset?: number }) =>
         http.get<SearchResult>('/catalog/search', { query: params }),
-      getTrack: (id: string) =>
-        http.get<TrackDetails>(`/catalog/tracks/${encodeURIComponent(id)}`),
-      getAlbum: (id: string) =>
-        http.get<AlbumDetails>(`/catalog/albums/${encodeURIComponent(id)}`),
+      getTrack: (id: string) => http.get<TrackDetails>(`/catalog/tracks/${encodeURIComponent(id)}`),
+      getAlbum: (id: string) => http.get<AlbumDetails>(`/catalog/albums/${encodeURIComponent(id)}`),
       getArtist: (id: string) =>
         http.get<ArtistDetails>(`/catalog/artists/${encodeURIComponent(id)}`),
-      getArtistTopTracks: (
-        id: string,
-        params?: { limit?: number; offset?: number },
-      ) =>
-        http.get<Paginated<TrackSummary>>(
-          `/catalog/artists/${encodeURIComponent(id)}/top-tracks`,
-          { query: params },
-        ),
+      getArtistTopTracks: (id: string, params?: { limit?: number; offset?: number }) =>
+        http.get<Paginated<TrackSummary>>(`/catalog/artists/${encodeURIComponent(id)}/top-tracks`, {
+          query: params,
+        }),
       getGenres: () => http.get<Genre[]>('/catalog/genres'),
       getCharts: () => http.get<ChartResult>('/catalog/charts'),
+    },
+    recommendations: {
+      getCollection: async () => {
+        try {
+          return await http.get<RecommendationCollectionResponse>('/recommendations/collection')
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 202) {
+            return { status: 'refreshing' as const, retryAfter: 2 as const }
+          }
+          throw error
+        }
+      },
     },
   }
 }

@@ -23,6 +23,10 @@ export default defineConfigWithVueTs(
   {
     languageOptions: {
       globals: { ...globals.browser },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       'vue/multi-word-component-names': 'off',

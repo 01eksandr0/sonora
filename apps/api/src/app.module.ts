@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module.js'
 import { AuthModule } from './modules/auth/auth.module.js'
 import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
 import { CatalogModule } from './modules/catalog/catalog.module.js'
+import { RecommendationsModule } from './modules/recommendations/recommendations.module.js'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CatalogModule } from './modules/catalog/catalog.module.js'
     AuthModule,
     OnboardingModule,
     CatalogModule,
+    RecommendationsModule
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
