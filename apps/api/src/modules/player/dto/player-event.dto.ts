@@ -1,5 +1,5 @@
-import { IsIn, IsInt, IsNotEmpty, IsString, Min } from 'class-validator'
-import { ApiProperty } from '@nestjs/swagger'
+import { IsIn, IsInt, IsNotEmpty, IsString, Min, ValidateIf } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class PlayerEventDto {
   @ApiProperty({ description: 'Deezer track provider ID' })
@@ -18,4 +18,10 @@ export class PlayerEventDto {
   @IsInt()
   @Min(0)
   durationSec!: number
+
+  @ApiPropertyOptional({ description: "Id returned by the 'started' event; required for all other events" })
+  @ValidateIf((dto: PlayerEventDto) => dto.event !== 'started')
+  @IsString()
+  @IsNotEmpty()
+  playbackId?: string
 }

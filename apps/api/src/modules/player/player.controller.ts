@@ -60,7 +60,13 @@ export class PlayerController {
   @Post('event')
   @ApiOperation({ summary: 'Emit playback milestone event' })
   async emitEvent(@CurrentUser() user: UserWithProfileEntity, @Body() body: PlayerEventDto) {
-    await this.playerService.emitEvent(user.id, body.trackId, body.event, body.durationSec)
-    return { success: true }
+    const result = await this.playerService.emitEvent(
+      user.id,
+      body.trackId,
+      body.event,
+      body.durationSec,
+      body.playbackId,
+    )
+    return { success: true, ...result }
   }
 }

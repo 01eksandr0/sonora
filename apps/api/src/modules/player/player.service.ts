@@ -93,7 +93,7 @@ export class PlayerService {
       currentTrack: track,
       isPlaying: true,
       progressMs: 0,
-      volume: currentState.volume || 70,
+      volume: currentState.volume ?? 70,
       updatedAt: Date.now(),
       history,
       queue: upcoming,
@@ -197,29 +197,31 @@ export class PlayerService {
     trackId: string,
     event: 'started' | 'listened_10s' | 'completed' | 'skipped',
     durationSec: number,
-  ): Promise<void> {
-    // One row per listen: 'started' opens it, later events update the latest row for that track.
+    playbackId?: string,
+  ): Promise<{ playbackId: string }> {
+    // One row per listen: 'started' opens it and returns its id; later events update exactly that row.
     if (event !== 'started') {
-      const listen = await this.prisma.listeningHistory.findFirst({
-        where: { userId, provider: 'DEEZER', providerId: trackId },
-        orderBy: { startedAt: 'desc' },
+      const listen = playbackId
+        ? await this.prisma.listeningHistory.findFirst({
+            where: { id: playbackId, userId, providerId: trackId },
+          })
+        : null
+      if (!listen) throw new NotFoundException('Playback not found')
+
+      await this.prisma.listeningHistory.update({
+        where: { id: listen.id },
+        data: {
+          listenedSeconds: Math.max(listen.listenedSeconds, durationSec),
+          completed: listen.completed || event === 'completed',
+        },
       })
-      if (listen) {
-        await this.prisma.listeningHistory.update({
-          where: { id: listen.id },
-          data: {
-            listenedSeconds: Math.max(listen.listenedSeconds, durationSec),
-            completed: listen.completed || event === 'completed',
-          },
-        })
-        return
-      }
+      return { playbackId: listen.id }
     }
 
     const state = await this.getState(userId)
     const track = state.currentTrack?.providerId === trackId ? state.currentTrack : null
 
-    await this.prisma.listeningHistory.create({
+    const listen = await this.prisma.listeningHistory.create({
       data: {
         userId,
         provider: 'DEEZER',
@@ -229,9 +231,10 @@ export class PlayerService {
         albumTitle: track?.album.title || null,
         coverUrl: track?.album.cover.small || null,
         listenedSeconds: durationSec,
-        completed: event === 'completed',
+        completed: false,
       },
     })
+    return { playbackId: listen.id }
   }
 
   private buildExcludeIds(

@@ -28,6 +28,8 @@ export const usePlayerStore = defineStore('player', () => {
   // Track ids for which the lifecycle events were already sent during the current listen.
   let startedReportedFor: string | null = null
   let tenSecReportedFor: string | null = null
+  // Id of the current listen from the 'started' event; later events of that listen must carry it.
+  let playbackId: Promise<string | null> = Promise.resolve(null)
 
   // Progress percentage (0 - 100)
   const progressPercent = computed(() => {
@@ -88,8 +90,19 @@ export const usePlayerStore = defineStore('player', () => {
   function report(event: PlayerEventRequest['event'], seconds: number) {
     const trackId = currentTrack.value?.providerId
     if (!trackId) return
-    api.player
-      .emitEvent({ trackId, event, durationSec: Math.max(0, Math.round(seconds)) })
+    const durationSec = Math.max(0, Math.round(seconds))
+
+    if (event === 'started') {
+      playbackId = api.player.emitEvent({ trackId, event, durationSec }).then(
+        (res) => res.playbackId,
+        () => null,
+      )
+      return
+    }
+
+    // Captured now, so a late event still lands on its own listen after the next track has started.
+    playbackId
+      .then((id) => (id ? api.player.emitEvent({ trackId, event, durationSec, playbackId: id }) : null))
       .catch(() => {})
   }
 

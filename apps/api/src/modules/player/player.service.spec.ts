@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { PlayerService } from './player.service.js'
+import { NotFoundException } from '@nestjs/common'
 import type { TrackSummary } from '@music-app/shared-types'
+import type { CacheService } from '../../infrastructure/cache/cache.service.js'
+import type { PrismaService } from '../../infrastructure/database/prisma.service.js'
+import type { CatalogService } from '../catalog/catalog.service.js'
+import type { PlayerQueueService } from './player-queue.service.js'
+import { PlayerService } from './player.service.js'
 
 describe('PlayerService', () => {
   let playerService: PlayerService
-  let cacheService: any
-  let catalogService: any
-  let playerQueueService: any
-  let prisma: any
 
   const mockTrack: TrackSummary = {
     provider: 'deezer',
@@ -32,18 +33,19 @@ describe('PlayerService', () => {
     title: 'Next Song',
   }
 
-  beforeEach(() => {
-    cacheService = {
+  // Only the members PlayerService touches; cast to the real types once, at construction.
+  const createMocks = () => ({
+    cacheService: {
       get: vi.fn(),
       set: vi.fn(),
-    }
-    catalogService = {
+    },
+    catalogService: {
       getFreshTrack: vi.fn().mockResolvedValue(mockTrack),
-    }
-    playerQueueService = {
+    },
+    playerQueueService: {
       getUpcomingCandidates: vi.fn().mockResolvedValue([mockNextTrack]),
-    }
-    prisma = {
+    },
+    prisma: {
       favoriteTrack: {
         count: vi.fn().mockResolvedValue(0),
       },
@@ -55,13 +57,22 @@ describe('PlayerService', () => {
       recommendationCollection: {
         findUnique: vi.fn().mockResolvedValue(null),
       },
-    }
+    },
+  })
+
+  let cacheService: ReturnType<typeof createMocks>['cacheService']
+  let catalogService: ReturnType<typeof createMocks>['catalogService']
+  let playerQueueService: ReturnType<typeof createMocks>['playerQueueService']
+  let prisma: ReturnType<typeof createMocks>['prisma']
+
+  beforeEach(() => {
+    ;({ cacheService, catalogService, playerQueueService, prisma } = createMocks())
 
     playerService = new PlayerService(
-      cacheService,
-      catalogService,
-      playerQueueService,
-      prisma,
+      cacheService as unknown as CacheService,
+      catalogService as unknown as CatalogService,
+      playerQueueService as unknown as PlayerQueueService,
+      prisma as unknown as PrismaService,
     )
   })
 
@@ -196,23 +207,50 @@ describe('PlayerService', () => {
 
     await playerService.play('user-1', '10', { type: 'collection' })
 
-    const excludeIds = playerQueueService.getUpcomingCandidates.mock.calls[0][2] as Set<string>
+    const excludeIds = playerQueueService.getUpcomingCandidates.mock.calls[0]?.[2] as Set<string>
     expect([...excludeIds]).toEqual(['10'])
   })
 
-  it('opens one history row on started and updates it on later events', async () => {
+  it('opens a history row on started and updates exactly that row by playbackId', async () => {
     cacheService.get.mockResolvedValue(null)
 
-    await playerService.emitEvent('user-1', '100', 'started', 0)
-    expect(prisma.listeningHistory.create).toHaveBeenCalledTimes(1)
+    const { playbackId } = await playerService.emitEvent('user-1', '100', 'started', 0)
+    expect(playbackId).toBe('hist-1')
 
     prisma.listeningHistory.findFirst.mockResolvedValue({ id: 'hist-1', listenedSeconds: 10, completed: false })
-    await playerService.emitEvent('user-1', '100', 'completed', 30)
+    await playerService.emitEvent('user-1', '100', 'completed', 30, playbackId)
 
+    expect(prisma.listeningHistory.findFirst).toHaveBeenCalledWith({
+      where: { id: 'hist-1', userId: 'user-1', providerId: '100' },
+    })
     expect(prisma.listeningHistory.create).toHaveBeenCalledTimes(1)
     expect(prisma.listeningHistory.update).toHaveBeenCalledWith({
       where: { id: 'hist-1' },
       data: { listenedSeconds: 30, completed: true },
     })
+  })
+
+  it('rejects follow-up events for an unknown playback', async () => {
+    await expect(playerService.emitEvent('user-1', '100', 'skipped', 5, 'foreign-id')).rejects.toBeInstanceOf(
+      NotFoundException,
+    )
+    expect(prisma.listeningHistory.update).not.toHaveBeenCalled()
+  })
+
+  it('keeps zero volume when a new track is played', async () => {
+    cacheService.get.mockResolvedValue({
+      userId: 'user-1',
+      currentTrack: null,
+      isPlaying: false,
+      progressMs: 0,
+      volume: 0,
+      updatedAt: Date.now(),
+      history: [],
+      queue: [],
+    })
+
+    const state = await playerService.play('user-1', '100')
+
+    expect(state.volume).toBe(0)
   })
 })
