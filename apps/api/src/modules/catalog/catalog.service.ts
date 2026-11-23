@@ -49,6 +49,11 @@ export class CatalogService {
     )
   }
 
+  // Uncached: Deezer preview URLs are signed for ~15 min, so anything about to be played needs a fresh one.
+  getFreshTrack(id: string): Promise<TrackDetails> {
+    return this.provider.getTrack(id)
+  }
+
   async getAlbum(id: string): Promise<AlbumDetails> {
     const cacheKey = `catalog:album:${id}`
 

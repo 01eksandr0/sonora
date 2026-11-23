@@ -5,6 +5,13 @@ import type {
   OnboardingOptionsResponse,
   RegisterRequest,
   RecommendationCollectionResponse,
+  FavoriteStatusResponse,
+  FavoriteTrackSummary,
+  PlayerEventRequest,
+  PlayerEventResponse,
+  PlayerState,
+  PlayTrackRequest,
+  SeekTrackRequest,
   UserWithProfile,
   AlbumDetails,
   ArtistDetails,
@@ -71,6 +78,29 @@ export function createApiClient(options: HttpClientOptions) {
           throw error
         }
       },
+    },
+    player: {
+      getState: () => http.get<PlayerState>('/player/state'),
+      play: (body: PlayTrackRequest) => http.post<PlayerState>('/player/play', { body }),
+      pause: () => http.post<PlayerState>('/player/pause'),
+      resume: () => http.post<PlayerState>('/player/resume'),
+      next: () => http.post<PlayerState>('/player/next'),
+      previous: () => http.post<PlayerState>('/player/previous'),
+      seek: (body: SeekTrackRequest) => http.post<PlayerState>('/player/seek', { body }),
+      emitEvent: (body: PlayerEventRequest) =>
+        http.post<PlayerEventResponse>('/player/event', { body }),
+    },
+    library: {
+      addFavoriteTrack: (id: string) =>
+        http.post<{ success: boolean }>(`/library/favorites/tracks/${encodeURIComponent(id)}`),
+      removeFavoriteTrack: (id: string) =>
+        http.delete<{ success: boolean }>(`/library/favorites/tracks/${encodeURIComponent(id)}`),
+      getFavoriteStatus: (ids: string[]) =>
+        http.get<FavoriteStatusResponse>('/library/favorites/tracks/status', {
+          query: { ids: ids.join(',') },
+        }),
+      getFavorites: (params?: { limit?: number; offset?: number }) =>
+        http.get<Paginated<FavoriteTrackSummary>>('/library/favorites/tracks', { query: params }),
     },
   }
 }

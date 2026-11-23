@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { TrackSummary } from '@music-app/shared-types'
-import { IconMusic } from '@tabler/icons-vue'
+import { IconMusic, IconPlayerPlayFilled, IconPlayerPauseFilled } from '@tabler/icons-vue'
+import { usePlayerStore } from '@/features/player'
+import { SonoraEqualizer } from '@/shared/ui'
 
 defineProps<{
   tracks: TrackSummary[]
@@ -12,6 +14,16 @@ defineProps<{
 defineEmits<{
   retry: []
 }>()
+
+const playerStore = usePlayerStore()
+
+function handleTrackClick(track: TrackSummary) {
+  if (playerStore.currentTrack?.providerId === track.providerId) {
+    playerStore.togglePlay()
+  } else {
+    playerStore.playTrack(track, { type: 'collection' })
+  }
+}
 </script>
 
 <template>
@@ -35,8 +47,27 @@ defineEmits<{
     </p>
 
     <div v-else class="track-list">
-      <div v-for="(track, index) in tracks" :key="track.providerId" class="track">
-        <span class="track-number">{{ index + 1 }}</span>
+      <div
+        v-for="(track, index) in tracks"
+        :key="track.providerId"
+        class="track cursor-pointer"
+        :class="{ 'is-playing': playerStore.currentTrack?.providerId === track.providerId }"
+        role="button"
+        tabindex="0"
+        @click="handleTrackClick(track)"
+      >
+        <span class="track-number">
+          <template v-if="playerStore.currentTrack?.providerId === track.providerId && playerStore.isPlaying">
+            <SonoraEqualizer class="eq-indicator" />
+            <IconPlayerPauseFilled :size="14" class="accent-text hover-pause" />
+          </template>
+          <template v-else-if="playerStore.currentTrack?.providerId === track.providerId">
+            <IconPlayerPlayFilled :size="14" class="accent-text" />
+          </template>
+          <template v-else>
+            {{ index + 1 }}
+          </template>
+        </span>
         <img
           v-if="track.album.cover.small"
           class="cover"
@@ -99,14 +130,28 @@ defineEmits<{
 .track {
   align-items: center;
   border-bottom: 1px solid #202027;
+  cursor: pointer;
   display: grid;
   gap: 14px;
   grid-template-columns: 24px 44px minmax(0, 1fr) minmax(100px, 0.8fr);
   padding: 9px 4px;
+  transition: background 0.15s ease;
 }
 
 .track:hover {
   background: #15151b;
+}
+
+.track.is-playing .track-name strong {
+  color: var(--sonora-accent);
+}
+
+.track.is-playing .track-number {
+  color: var(--sonora-accent);
+}
+
+.accent-text {
+  color: var(--sonora-accent);
 }
 
 .collection-note {
@@ -116,7 +161,18 @@ defineEmits<{
 }
 
 .track-number {
-  text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.hover-pause,
+.track:hover .eq-indicator {
+  display: none;
+}
+
+.track:hover .hover-pause {
+  display: block;
 }
 
 .cover {

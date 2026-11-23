@@ -23,6 +23,7 @@ defineProps<{
 
 defineEmits<{
   selectTab: [tab: SearchTab]
+  play: [track: TrackSummary]
 }>()
 </script>
 
@@ -49,6 +50,7 @@ defineEmits<{
           :key="track.providerId"
           :track="track"
           :index="index"
+          @play="$emit('play', $event)"
         />
       </div>
     </section>

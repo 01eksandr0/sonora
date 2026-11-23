@@ -4,13 +4,16 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { refDebounced } from '@vueuse/core'
 import { IconChevronRight, IconSearch, IconX } from '@tabler/icons-vue'
+import type { TrackSummary } from '@music-app/shared-types'
 import { useCatalogSearch } from '@/features/catalog/model/use-catalog-search.query'
 import { useSessionStore } from '@/features/auth'
+import { usePlayerStore } from '@/features/player'
 import { SearchResults } from '@/widgets/search-results'
 
 const route = useRoute()
 const router = useRouter()
 const session = useSessionStore()
+const playerStore = usePlayerStore()
 
 const searchQuery = ref('')
 const activeTab = ref<'all' | 'tracks' | 'artists' | 'albums' | 'playlists'>('all')
@@ -82,6 +85,10 @@ const tasteRecommendations = [
 function clearQuery() {
   searchQuery.value = ''
   activeTab.value = 'all'
+}
+
+function onPlayTrack(track: TrackSummary) {
+  playerStore.playTrack(track, { type: 'search', query: debouncedQuery.value })
 }
 </script>
 
@@ -237,6 +244,7 @@ function clearQuery() {
         :total-artists="totalArtists"
         :total-albums="totalAlbums"
         @select-tab="activeTab = $event"
+        @play="onPlayTrack"
       />
     </div>
   </div>
