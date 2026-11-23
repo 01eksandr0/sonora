@@ -1,77 +1,109 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import {
   IconChevronLeft,
   IconChevronRight,
   IconHeart,
+  IconMusic,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
+  IconVolume,
   IconVolume2,
 } from '@tabler/icons-vue'
+import { usePlayerStore } from '@/features/player'
 
-const isPlaying = ref(false)
-const isLiked = ref(false)
+const playerStore = usePlayerStore()
 
-function togglePlay() {
-  isPlaying.value = !isPlaying.value
+function formatTime(seconds: number): string {
+  const s = Math.floor(seconds || 0)
+  const m = Math.floor(s / 60)
+  const rem = s % 60
+  return `${m}:${String(rem).padStart(2, '0')}`
 }
 
-function toggleLike() {
-  isLiked.value = !isLiked.value
+function onSeekClick(event: MouseEvent) {
+  const el = event.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const ratio = Math.max(0, Math.min(1, clickX / rect.width))
+  playerStore.seek(ratio * playerStore.duration)
+}
+
+function onVolumeClick(event: MouseEvent) {
+  const el = event.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const ratio = Math.max(0, Math.min(1, clickX / rect.width))
+  playerStore.setVolume(Math.round(ratio * 100))
 }
 </script>
 
 <template>
-  <footer class="player-bar">
+  <footer v-if="playerStore.currentTrack" class="player-bar">
     <div class="player-track">
-      <div class="artwork art-rust size-11 rounded-xl" aria-hidden="true">
-        <span class="artwork-shape" />
-        <span class="artwork-shape artwork-shape-two" />
+      <img
+        v-if="playerStore.currentTrack.album?.cover?.small"
+        :src="playerStore.currentTrack.album.cover.small"
+        :alt="playerStore.currentTrack.title"
+        class="track-cover"
+      />
+      <div v-else class="artwork art-rust size-11 rounded-xl" aria-hidden="true">
+        <IconMusic :size="18" class="text-white/60" />
       </div>
-      <div>
-        <strong>My Own Summer</strong>
-        <span>Deftones</span>
+
+      <div class="track-meta">
+        <strong>{{ playerStore.currentTrack.title }}</strong>
+        <span>{{ playerStore.currentTrack.artist.name }}</span>
       </div>
+
       <button
         class="player-heart"
-        :class="{ 'is-liked': isLiked }"
+        :class="{ 'is-liked': playerStore.isLiked }"
         aria-label="Favorite track"
         type="button"
-        @click="toggleLike"
+        @click="playerStore.toggleLike"
       >
-        <IconHeart :size="17" :fill="isLiked ? 'currentColor' : 'none'" />
+        <IconHeart :size="17" :fill="playerStore.isLiked ? 'currentColor' : 'none'" />
       </button>
     </div>
 
     <div class="player-controls">
       <div class="control-buttons">
-        <button aria-label="Previous" type="button">
+        <button aria-label="Previous" type="button" @click="playerStore.previous">
           <IconChevronLeft :size="16" />
         </button>
         <button
           class="main-play"
-          :aria-label="isPlaying ? 'Pause' : 'Play'"
+          :aria-label="playerStore.isPlaying ? 'Pause' : 'Play'"
           type="button"
-          @click="togglePlay"
+          @click="playerStore.togglePlay"
         >
-          <IconPlayerPauseFilled v-if="isPlaying" :size="16" />
+          <IconPlayerPauseFilled v-if="playerStore.isPlaying" :size="16" />
           <IconPlayerPlayFilled v-else :size="16" />
         </button>
-        <button aria-label="Next" type="button">
+        <button aria-label="Next" type="button" @click="playerStore.next">
           <IconChevronRight :size="16" />
         </button>
       </div>
-      <div class="progress-line">
-        <span />
-        <i />
+
+      <div class="progress-line" role="slider" aria-label="Seek track" @click="onSeekClick">
+        <span :style="{ width: `${playerStore.progressPercent}%` }" />
+        <i :style="{ left: `${playerStore.progressPercent}%` }" />
       </div>
     </div>
 
     <div class="player-actions">
-      <span>1:42</span>
-      <IconVolume2 :size="18" />
-      <div class="volume-line">
-        <span />
+      <span>{{ formatTime(playerStore.currentTime) }}</span>
+      <button
+        type="button"
+        class="volume-btn"
+        aria-label="Toggle mute"
+        @click="playerStore.toggleMute"
+      >
+        <IconVolume2 v-if="!playerStore.isMuted && playerStore.volume > 0" :size="18" />
+        <IconVolume v-else :size="18" />
+      </button>
+      <div class="volume-line" role="slider" aria-label="Adjust volume" @click="onVolumeClick">
+        <span :style="{ width: `${playerStore.isMuted ? 0 : playerStore.volume}%` }" />
       </div>
     </div>
   </footer>
@@ -101,11 +133,19 @@ function toggleLike() {
   min-width: 0;
 }
 
-.player-track > div:nth-child(2) {
+.track-cover {
+  border-radius: 12px;
+  height: 44px;
+  object-fit: cover;
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.track-meta {
   min-width: 0;
 }
 
-.player-track strong {
+.track-meta strong {
   color: var(--sonora-text);
   display: block;
   font-size: 11px;
@@ -114,11 +154,14 @@ function toggleLike() {
   white-space: nowrap;
 }
 
-.player-track span {
+.track-meta span {
   color: var(--sonora-muted);
   display: block;
   font-size: 10px;
   margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-heart {
@@ -129,6 +172,7 @@ function toggleLike() {
   margin-left: 6px;
   padding: 5px;
   transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .player-heart.is-liked {
@@ -181,8 +225,9 @@ function toggleLike() {
 .volume-line {
   background: #404048;
   border-radius: 5px;
+  cursor: pointer;
   height: 3px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   width: 100%;
 }
@@ -191,17 +236,19 @@ function toggleLike() {
   background: var(--sonora-accent);
   display: block;
   height: 100%;
-  width: 33%;
+  border-radius: 5px;
+  pointer-events: none;
 }
 
 .progress-line i {
   background: var(--sonora-accent);
   border-radius: 50%;
   height: 7px;
-  left: 32%;
   position: absolute;
   top: -2px;
+  transform: translateX(-50%);
   width: 7px;
+  pointer-events: none;
 }
 
 .player-actions {
@@ -213,15 +260,31 @@ function toggleLike() {
   justify-content: flex-end;
 }
 
+.volume-btn {
+  background: transparent;
+  border: 0;
+  color: var(--sonora-muted);
+  cursor: pointer;
+  display: flex;
+  padding: 2px;
+  transition: color 0.2s ease;
+}
+
+.volume-btn:hover {
+  color: var(--sonora-text);
+}
+
 .volume-line {
   width: 70px;
+  overflow: hidden;
 }
 
 .volume-line span {
   background: var(--sonora-text);
   display: block;
   height: 100%;
-  width: 70%;
+  border-radius: 5px;
+  pointer-events: none;
 }
 
 @media (max-width: 640px) {

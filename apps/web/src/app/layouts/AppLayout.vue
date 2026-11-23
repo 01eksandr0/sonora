@@ -1,17 +1,35 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { AppHeader } from '@/widgets/app-header'
 import { AppSidebar } from '@/widgets/app-sidebar'
 import { MusicPlayer } from '@/widgets/music-player'
 import { ROUTE_NAMES } from '@/app/router/routes'
+import { usePlayerStore } from '@/features/player'
 
 const route = useRoute()
+const playerStore = usePlayerStore()
+// Restore the session here, not in MusicPlayer: the widget only mounts once a track exists.
+onMounted(() => playerStore.initFromBackend())
+
 const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
+const isProfile = computed(
+  () => route.name === ROUTE_NAMES.profile || route.path.endsWith('/profile'),
+)
+
+const showPlayer = computed(
+  () => !isOnboarding.value && !isProfile.value && !!playerStore.currentTrack,
+)
 </script>
 
 <template>
-  <div class="sonora-shell min-h-full" :class="{ 'app-layout--onboarding': isOnboarding }">
+  <div
+    class="sonora-shell min-h-full"
+    :class="{
+      'app-layout--onboarding': isOnboarding,
+      'has-player': showPlayer,
+    }"
+  >
     <template v-if="!isOnboarding">
       <AppSidebar />
 
@@ -22,7 +40,7 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
         </main>
       </div>
 
-      <MusicPlayer />
+      <MusicPlayer v-if="showPlayer" />
     </template>
 
     <main v-else class="app-layout__onboarding">
@@ -37,6 +55,10 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
   color: var(--sonora-text);
   display: flex;
   min-height: 100vh;
+  padding-bottom: 0;
+}
+
+.sonora-shell.has-player {
   padding-bottom: 92px;
 }
 
@@ -70,13 +92,21 @@ const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
 @media (max-width: 640px) {
   .sonora-shell {
     display: block;
+    padding-bottom: 0;
+  }
+
+  .sonora-shell.has-player {
     padding-bottom: 116px;
   }
 
   .sonora-main {
     margin-left: 0;
-    min-height: calc(100dvh - 116px);
+    min-height: 100dvh;
     width: 100%;
+  }
+
+  .sonora-shell.has-player .sonora-main {
+    min-height: calc(100dvh - 116px);
   }
 }
 </style>

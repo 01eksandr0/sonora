@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth/auth.module.js'
 import { OnboardingModule } from './modules/onboarding/onboarding.module.js'
 import { CatalogModule } from './modules/catalog/catalog.module.js'
 import { RecommendationsModule } from './modules/recommendations/recommendations.module.js'
+import { PlayerModule } from './modules/player/player.module.js'
+import { LibraryModule } from './modules/library/library.module.js'
 
 @Module({
   imports: [
@@ -22,7 +24,9 @@ import { RecommendationsModule } from './modules/recommendations/recommendations
     AuthModule,
     OnboardingModule,
     CatalogModule,
-    RecommendationsModule
+    RecommendationsModule,
+    PlayerModule,
+    LibraryModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
