@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type {
   AlbumDetails,
+  AlbumSummary,
   ArtistDetails,
   ChartResult,
   Genre,
@@ -91,6 +92,19 @@ export class DeezerProvider implements MusicProvider {
     )
   }
 
+  async getArtistAlbums(id: string, limit = 25, offset = 0): Promise<Paginated<AlbumSummary>> {
+    const response = await this.http.get<DeezerPaginatedResponse<DeezerAlbumDto>>(
+      `/artist/${encodeURIComponent(id)}/albums`,
+      {
+        limit,
+        index: offset,
+      },
+    )
+
+    return DeezerMapper.toPaginated(response, limit, offset, (item) =>
+      DeezerMapper.toAlbumSummary(item),
+    )
+  }
   async getGenres(): Promise<Genre[]> {
     const response = await this.http.get<{
       data: DeezerGenreDto[]
