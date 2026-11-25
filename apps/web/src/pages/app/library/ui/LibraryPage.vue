@@ -1,17 +1,47 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { IconArrowUpRight } from '@tabler/icons-vue'
 import { ROUTE_NAMES } from '@/app/router/routes'
+
+const route = useRoute()
+
+const sections = {
+  [ROUTE_NAMES.library]: {
+    title: 'Your favorites',
+    heading: 'Tracks you save will appear here',
+    description: 'Keep exploring and your collection will grow with you.',
+  },
+  [ROUTE_NAMES.playlists]: {
+    title: 'Your playlists',
+    heading: 'Your playlists will appear here',
+    description: 'Create playlists to organize the music you love.',
+  },
+  [ROUTE_NAMES.albums]: {
+    title: 'Your albums',
+    heading: 'Albums you save will appear here',
+    description: 'Build your collection with your favorite albums.',
+  },
+  [ROUTE_NAMES.artists]: {
+    title: 'Your artists',
+    heading: 'Artists you save will appear here',
+    description: 'Keep your favorite artists close.',
+  },
+}
+
+const currentSection = computed(
+  () => sections[route.name as keyof typeof sections] ?? sections[ROUTE_NAMES.library],
+)
 </script>
 
 <template>
   <main class="library-page">
     <p class="eyebrow">YOUR LIBRARY</p>
-    <h1>Your favorites</h1>
+    <h1>{{ currentSection.title }}</h1>
     <div class="empty-state">
       <div class="empty-orbit"><span /><span /></div>
-      <h2>Tracks you save will appear here</h2>
-      <p>Keep exploring and your collection will grow with you.</p>
+    <h2>{{ currentSection.heading }}</h2>
+    <p>{{ currentSection.description }}</p>
       <RouterLink class="discover-link" :to="{ name: ROUTE_NAMES.search }">
         Discover music
         <IconArrowUpRight :size="15" />
