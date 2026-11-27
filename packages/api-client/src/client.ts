@@ -8,6 +8,7 @@ import type {
   FavoriteStatusResponse,
   FavoriteTrackSummary,
   PlayerEventRequest,
+  PlayerEventResponse,
   PlayerState,
   PlayTrackRequest,
   SeekTrackRequest,
@@ -92,7 +93,7 @@ export function createApiClient(options: HttpClientOptions) {
       previous: () => http.post<PlayerState>('/player/previous'),
       seek: (body: SeekTrackRequest) => http.post<PlayerState>('/player/seek', { body }),
       emitEvent: (body: PlayerEventRequest) =>
-        http.post<{ success: boolean }>('/player/event', { body }),
+        http.post<PlayerEventResponse>('/player/event', { body }),
     },
     library: {
       addFavoriteTrack: (id: string) =>

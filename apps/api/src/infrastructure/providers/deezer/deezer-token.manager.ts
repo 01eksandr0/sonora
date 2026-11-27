@@ -1,4 +1,3 @@
-
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
@@ -16,12 +15,14 @@ export class DeezerTokenManager {
   constructor(private readonly config: ConfigService) {
     const raw = this.config.get<string>('DEEZER_API_TOKENS', '')
 
-    const list = [...new Set(
-      raw
-        .split(',')
-        .map((token) => token.trim())
-        .filter(Boolean),
-    )]
+    const list = [
+      ...new Set(
+        raw
+          .split(',')
+          .map((token) => token.trim())
+          .filter(Boolean),
+      ),
+    ]
 
     this.tokens = list.map((token) => ({
       token,
@@ -42,8 +43,7 @@ export class DeezerTokenManager {
     for (let i = 0; i < this.tokens.length; i++) {
       const slot = this.tokens[this.currentIndex]
 
-      this.currentIndex =
-        (this.currentIndex + 1) % this.tokens.length
+      this.currentIndex = (this.currentIndex + 1) % this.tokens.length
 
       if (!slot) continue
 

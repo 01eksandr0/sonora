@@ -40,8 +40,8 @@ const currentSection = computed(
     <h1>{{ currentSection.title }}</h1>
     <div class="empty-state">
       <div class="empty-orbit"><span /><span /></div>
-    <h2>{{ currentSection.heading }}</h2>
-    <p>{{ currentSection.description }}</p>
+      <h2>{{ currentSection.heading }}</h2>
+      <p>{{ currentSection.description }}</p>
       <RouterLink class="discover-link" :to="{ name: ROUTE_NAMES.search }">
         Discover music
         <IconArrowUpRight :size="15" />

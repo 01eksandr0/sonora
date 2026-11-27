@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type {
-  TrackSummary,
-  ArtistSummary,
-  AlbumSummary,
-} from '@music-app/shared-types'
+import type { TrackSummary, ArtistSummary, AlbumSummary } from '@music-app/shared-types'
 import { TrackRow } from '@/entities/track'
 import { ArtistCard } from '@/entities/artist'
 import { AlbumCard } from '@/entities/album'

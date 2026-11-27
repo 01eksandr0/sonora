@@ -57,7 +57,11 @@ function handleTrackClick(track: TrackSummary) {
         @click="handleTrackClick(track)"
       >
         <span class="track-number">
-          <template v-if="playerStore.currentTrack?.providerId === track.providerId && playerStore.isPlaying">
+          <template
+            v-if="
+              playerStore.currentTrack?.providerId === track.providerId && playerStore.isPlaying
+            "
+          >
             <SonoraEqualizer class="eq-indicator" />
             <IconPlayerPauseFilled :size="14" class="accent-text hover-pause" />
           </template>

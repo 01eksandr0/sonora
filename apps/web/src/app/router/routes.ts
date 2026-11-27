@@ -74,11 +74,11 @@ export const routes: RouteRecordRaw[] = [
         name: ROUTE_NAMES.albums,
         component: () => import('@/pages/app/library'),
       },
-     {
+      {
         path: 'library/artists',
         name: ROUTE_NAMES.artists,
         component: () => import('@/pages/app/library'),
-       },
+      },
       {
         path: 'profile',
         name: ROUTE_NAMES.profile,

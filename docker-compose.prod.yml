@@ -1,0 +1,72 @@
+# Production stack for a single server.
+# Needs a .env next to this file with: DOMAIN, POSTGRES_PASSWORD, JWT_ACCESS_SECRET,
+# JWT_REFRESH_SECRET, DEEZER_API_TOKENS (optional).
+# Run: docker compose -f docker-compose.prod.yml up -d --build
+name: sonora
+
+x-api-env: &api-env
+  DATABASE_URL: postgresql://music:${POSTGRES_PASSWORD:?}@postgres:5432/music_app
+  REDIS_URL: redis://redis:6379
+  CORS_ORIGIN: https://${DOMAIN:?}
+  COOKIE_SECURE: 'true'
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?}
+  DEEZER_API_TOKENS: ${DEEZER_API_TOKENS:-}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: music
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: music_app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U music -d music_app']
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      retries: 10
+
+  migrate:
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: migrate }
+    environment: *api-env
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: runtime }
+    restart: unless-stopped
+    environment: *api-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  web:
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - caddy_data:/data
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:

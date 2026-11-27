@@ -84,7 +84,8 @@ export class HttpClient {
   }
 
   private buildUrl(path: string, query?: QueryParams): string {
-    const url = new URL(`${this.baseUrl}/${path.replace(/^\//, '')}`)
+    // relative baseUrl (e.g. '/api') resolves against the current page in the browser
+    const url = new URL(`${this.baseUrl}/${path.replace(/^\//, '')}`, globalThis.location?.href)
     if (query) {
       for (const [key, value] of Object.entries(query)) {
         if (value !== undefined && value !== null) {

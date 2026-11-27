@@ -16,20 +16,14 @@ export class LibraryController {
 
   @Post('favorites/tracks/:id')
   @ApiOperation({ summary: 'Add track to favorites' })
-  async addFavoriteTrack(
-    @CurrentUser() user: UserWithProfileEntity,
-    @Param('id') id: string,
-  ) {
+  async addFavoriteTrack(@CurrentUser() user: UserWithProfileEntity, @Param('id') id: string) {
     const success = await this.libraryService.addFavoriteTrack(user.id, id)
     return { success }
   }
 
   @Delete('favorites/tracks/:id')
   @ApiOperation({ summary: 'Remove track from favorites' })
-  async removeFavoriteTrack(
-    @CurrentUser() user: UserWithProfileEntity,
-    @Param('id') id: string,
-  ) {
+  async removeFavoriteTrack(@CurrentUser() user: UserWithProfileEntity, @Param('id') id: string) {
     const success = await this.libraryService.removeFavoriteTrack(user.id, id)
     return { success }
   }
@@ -40,16 +34,16 @@ export class LibraryController {
     @CurrentUser() user: UserWithProfileEntity,
     @Query() query: FavoriteStatusQueryDto,
   ) {
-    const ids = query.ids.split(',').map((s) => s.trim()).filter(Boolean)
+    const ids = query.ids
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
     return this.libraryService.getFavoriteStatus(user.id, ids)
   }
 
   @Get('favorites/tracks')
   @ApiOperation({ summary: 'Get favorite tracks list' })
-  getFavorites(
-    @CurrentUser() user: UserWithProfileEntity,
-    @Query() query: PaginationQueryDto,
-  ) {
+  getFavorites(@CurrentUser() user: UserWithProfileEntity, @Query() query: PaginationQueryDto) {
     return this.libraryService.getFavorites(user.id, query.limit, query.offset)
   }
 }

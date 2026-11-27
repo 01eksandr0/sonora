@@ -63,6 +63,7 @@ export class CatalogService {
       this.provider.getArtistTopTracks(id, limit, offset),
     )
   }
+
   async getArtistAlbums(id: string, limit = 25, offset = 0): Promise<Paginated<AlbumSummary>> {
     const cacheKey = `catalog:artist:${id}:albums:${limit}:${offset}`
 

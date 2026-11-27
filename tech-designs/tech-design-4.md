@@ -181,6 +181,7 @@ const { data: searchResults, isFetching, isError, refetch } = useCatalogSearch(d
 ### 5.3. Вкладки (Tabs) фільтрації
 
 Тип вкладок:
+
 ```ts
 type SearchTab = 'all' | 'tracks' | 'artists' | 'albums'
 const activeTab = ref<SearchTab>('all')
@@ -202,6 +203,7 @@ const activeTab = ref<SearchTab>('all')
 ### 5.4. Відображення сутностей
 
 #### 1. Рядок треку (`TrackRow.vue`):
+
 - Номер треку (`index + 1`).
 - Обкладинка альбому (`track.album.cover.small` або placeholder іконка).
 - Назва пісні (`track.title`).
@@ -217,12 +219,14 @@ const activeTab = ref<SearchTab>('all')
   ```
 
 #### 2. Картка артиста (`ArtistCard.vue`):
+
 - Кругле фото (`artist.images.medium` або `small`).
 - Ім'я виконавця (`artist.name`).
 - Підпис «Artist».
 - Посилання на `/app/artist/:id`.
 
 #### 3. Картка альбому (`AlbumCard.vue`):
+
 - Квадратна обкладинка (`album.cover.medium`).
 - Назва альбому (`album.title`).
 - Ім'я виконавця (`album.artist.name`).

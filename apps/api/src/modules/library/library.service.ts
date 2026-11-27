@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import type { FavoriteStatusResponse, FavoriteTrackSummary, Paginated } from '@music-app/shared-types'
+import type {
+  FavoriteStatusResponse,
+  FavoriteTrackSummary,
+  Paginated,
+} from '@music-app/shared-types'
 import { PrismaService } from '../../infrastructure/database/prisma.service.js'
 import { CatalogService } from '../catalog/catalog.service.js'
 

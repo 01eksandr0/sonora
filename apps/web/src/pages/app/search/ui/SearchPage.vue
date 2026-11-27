@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -51,10 +50,7 @@ const albumsList = computed(() => searchResults.value?.albums?.items ?? [])
 const totalAlbums = computed(() => searchResults.value?.albums?.pagination?.total ?? 0)
 
 const hasAnyResults = computed(
-  () =>
-    tracksList.value.length > 0 ||
-    artistsList.value.length > 0 ||
-    albumsList.value.length > 0,
+  () => tracksList.value.length > 0 || artistsList.value.length > 0 || albumsList.value.length > 0,
 )
 
 const hasNoResults = computed(
@@ -67,10 +63,7 @@ const hasNoResults = computed(
 )
 
 const userName = computed(() => {
-  const full =
-    session.user?.profile?.displayName ||
-    session.user?.email?.split('@')[0] ||
-    'Alex'
+  const full = session.user?.profile?.displayName || session.user?.email?.split('@')[0] || 'Alex'
 
   return full.split(/\s+/)[0] || 'Alex'
 })
@@ -122,38 +115,21 @@ function onPlayTrack(track: TrackSummary) {
 
       <!-- Search Categories -->
       <div class="search-categories">
-        <span
-          :class="{ 'is-active': activeTab === 'all' }"
-          @click="activeTab = 'all'"
-        >
-          All
-        </span>
+        <span :class="{ 'is-active': activeTab === 'all' }" @click="activeTab = 'all'"> All </span>
 
-        <span
-          :class="{ 'is-active': activeTab === 'tracks' }"
-          @click="activeTab = 'tracks'"
-        >
+        <span :class="{ 'is-active': activeTab === 'tracks' }" @click="activeTab = 'tracks'">
           Tracks
         </span>
 
-        <span
-          :class="{ 'is-active': activeTab === 'artists' }"
-          @click="activeTab = 'artists'"
-        >
+        <span :class="{ 'is-active': activeTab === 'artists' }" @click="activeTab = 'artists'">
           Artists
         </span>
 
-        <span
-          :class="{ 'is-active': activeTab === 'albums' }"
-          @click="activeTab = 'albums'"
-        >
+        <span :class="{ 'is-active': activeTab === 'albums' }" @click="activeTab = 'albums'">
           Albums
         </span>
 
-        <span
-          :class="{ 'is-active': activeTab === 'playlists' }"
-          @click="activeTab = 'playlists'"
-        >
+        <span :class="{ 'is-active': activeTab === 'playlists' }" @click="activeTab = 'playlists'">
           Playlists
         </span>
       </div>
@@ -178,10 +154,7 @@ function onPlayTrack(track: TrackSummary) {
             tabindex="0"
             @click="searchQuery = item.title"
           >
-            <div
-              :class="['artwork aspect-square rounded-[18px]', item.tone]"
-              aria-hidden="true"
-            >
+            <div :class="['artwork aspect-square rounded-[18px]', item.tone]" aria-hidden="true">
               <span class="artwork-shape" />
               <span class="artwork-shape artwork-shape-two" />
             </div>
@@ -193,10 +166,7 @@ function onPlayTrack(track: TrackSummary) {
       </template>
 
       <!-- Loading State -->
-      <p
-        v-else-if="isFetching && !hasAnyResults"
-        class="search-hint"
-      >
+      <p v-else-if="isFetching && !hasAnyResults" class="search-hint">
         Searching for "{{ debouncedQuery }}"...
       </p>
 
@@ -205,13 +175,7 @@ function onPlayTrack(track: TrackSummary) {
         <h2>Something went wrong</h2>
         <p class="error">Could not load search results. Please try again.</p>
 
-        <button
-          type="button"
-          class="primary-button"
-          @click="() => refetch"
-        >
-          Try again
-        </button>
+        <button type="button" class="primary-button" @click="() => refetch">Try again</button>
       </div>
 
       <div v-else-if="hasNoResults" class="section-empty">
@@ -223,11 +187,7 @@ function onPlayTrack(track: TrackSummary) {
         <h2>Try searching for an artist, album, or track</h2>
         <p>Keep exploring and your collection will grow with you.</p>
 
-        <button
-          type="button"
-          class="primary-button"
-          @click="clearQuery"
-        >
+        <button type="button" class="primary-button" @click="clearQuery">
           Discover music
           <IconChevronRight :size="15" />
         </button>

@@ -47,7 +47,11 @@ export class PlayerService {
     }
   }
 
-  async play(userId: string, trackId: string, context?: PlayerContext): Promise<PlayerSessionState> {
+  async play(
+    userId: string,
+    trackId: string,
+    context?: PlayerContext,
+  ): Promise<PlayerSessionState> {
     const track = await this.catalogService.getFreshTrack(trackId)
     if (!track) {
       throw new NotFoundException(`Track ${trackId} not found`)
@@ -71,7 +75,9 @@ export class PlayerService {
           const collectionTracks = collection.tracks as unknown as TrackSummary[]
           const trackIdx = collectionTracks.findIndex((t) => t.providerId === track.providerId)
           if (trackIdx > 0) {
-            const previousCollectionTracks = collectionTracks.slice(0, trackIdx).filter((t) => !!t.previewUrl)
+            const previousCollectionTracks = collectionTracks
+              .slice(0, trackIdx)
+              .filter((t) => !!t.previewUrl)
             history.unshift(...previousCollectionTracks.reverse())
             if (history.length > 50) {
               history.length = 50
@@ -85,7 +91,12 @@ export class PlayerService {
 
     const excludeIds = this.buildExcludeIds(track, history, [], context)
 
-    const upcoming = await this.playerQueueService.getUpcomingCandidates(track, context, excludeIds, userId)
+    const upcoming = await this.playerQueueService.getUpcomingCandidates(
+      track,
+      context,
+      excludeIds,
+      userId,
+    )
     const isLiked = await this.checkIsLiked(userId, track.providerId)
 
     const newState: PlayerSessionState = {
@@ -93,7 +104,7 @@ export class PlayerService {
       currentTrack: track,
       isPlaying: true,
       progressMs: 0,
-      volume: currentState.volume || 70,
+      volume: currentState.volume ?? 70,
       updatedAt: Date.now(),
       history,
       queue: upcoming,
@@ -197,29 +208,31 @@ export class PlayerService {
     trackId: string,
     event: 'started' | 'listened_10s' | 'completed' | 'skipped',
     durationSec: number,
-  ): Promise<void> {
-    // One row per listen: 'started' opens it, later events update the latest row for that track.
+    playbackId?: string,
+  ): Promise<{ playbackId: string }> {
+    // One row per listen: 'started' opens it and returns its id; later events update exactly that row.
     if (event !== 'started') {
-      const listen = await this.prisma.listeningHistory.findFirst({
-        where: { userId, provider: 'DEEZER', providerId: trackId },
-        orderBy: { startedAt: 'desc' },
+      const listen = playbackId
+        ? await this.prisma.listeningHistory.findFirst({
+            where: { id: playbackId, userId, providerId: trackId },
+          })
+        : null
+      if (!listen) throw new NotFoundException('Playback not found')
+
+      await this.prisma.listeningHistory.update({
+        where: { id: listen.id },
+        data: {
+          listenedSeconds: Math.max(listen.listenedSeconds, durationSec),
+          completed: listen.completed || event === 'completed',
+        },
       })
-      if (listen) {
-        await this.prisma.listeningHistory.update({
-          where: { id: listen.id },
-          data: {
-            listenedSeconds: Math.max(listen.listenedSeconds, durationSec),
-            completed: listen.completed || event === 'completed',
-          },
-        })
-        return
-      }
+      return { playbackId: listen.id }
     }
 
     const state = await this.getState(userId)
     const track = state.currentTrack?.providerId === trackId ? state.currentTrack : null
 
-    await this.prisma.listeningHistory.create({
+    const listen = await this.prisma.listeningHistory.create({
       data: {
         userId,
         provider: 'DEEZER',
@@ -229,9 +242,10 @@ export class PlayerService {
         albumTitle: track?.album.title || null,
         coverUrl: track?.album.cover.small || null,
         listenedSeconds: durationSec,
-        completed: event === 'completed',
+        completed: false,
       },
     })
+    return { playbackId: listen.id }
   }
 
   private buildExcludeIds(

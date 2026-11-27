@@ -1,10 +1,4 @@
-
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  ServiceUnavailableException,
-} from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DeezerTokenManager } from './deezer-token.manager.js'
 
@@ -25,10 +19,7 @@ export class DeezerHttpClient {
     private readonly config: ConfigService,
     private readonly tokenManager: DeezerTokenManager,
   ) {
-    this.baseUrl = this.config.get<string>(
-      'DEEZER_API_URL',
-      'https://api.deezer.com',
-    )
+    this.baseUrl = this.config.get<string>('DEEZER_API_URL', 'https://api.deezer.com')
   }
 
   async get<T>(
@@ -41,9 +32,7 @@ export class DeezerHttpClient {
       const token = this.tokenManager.getToken()
 
       if (token === null) {
-        throw new ServiceUnavailableException(
-          'All Deezer tokens are temporarily unavailable.',
-        )
+        throw new ServiceUnavailableException('All Deezer tokens are temporarily unavailable.')
       }
 
       const url = new URL(
@@ -65,21 +54,20 @@ export class DeezerHttpClient {
 
       try {
         res = await fetch(url.toString(), {
-  headers: {
-    Accept: 'application/json',
-  },
-  signal: AbortSignal.timeout(5000),
-})
+          headers: {
+            Accept: 'application/json',
+          },
+          signal: AbortSignal.timeout(5000),
+        })
       } catch (err) {
         this.logger.error(
-          `Network error on attempt ${attempt}/${maxRetries}: ${err instanceof Error ? err.message : String(err)
+          `Network error on attempt ${attempt}/${maxRetries}: ${
+            err instanceof Error ? err.message : String(err)
           }`,
         )
 
         if (attempt === maxRetries) {
-          throw new ServiceUnavailableException(
-            'Catalog is temporarily unavailable.',
-          )
+          throw new ServiceUnavailableException('Catalog is temporarily unavailable.')
         }
 
         continue
@@ -90,17 +78,13 @@ export class DeezerHttpClient {
       try {
         data = await res.json()
       } catch {
-        throw new ServiceUnavailableException(
-          'Deezer returned an invalid response.',
-        )
+        throw new ServiceUnavailableException('Deezer returned an invalid response.')
       }
 
       const apiError = data as DeezerApiError
 
       if (apiError?.error?.code === 800) {
-        throw new NotFoundException(
-          'Requested catalog item was not found.',
-        )
+        throw new NotFoundException('Requested catalog item was not found.')
       }
 
       if (apiError?.error?.code === 4 || res.status === 429) {
@@ -114,21 +98,14 @@ export class DeezerHttpClient {
       }
 
       if (!res.ok || apiError?.error) {
-        this.logger.error(
-          `Deezer API error: ${apiError?.error?.message || res.statusText
-          }`,
-        )
+        this.logger.error(`Deezer API error: ${apiError?.error?.message || res.statusText}`)
 
-        throw new ServiceUnavailableException(
-          'Catalog is temporarily unavailable.',
-        )
+        throw new ServiceUnavailableException('Catalog is temporarily unavailable.')
       }
 
       return data as T
     }
 
-    throw new ServiceUnavailableException(
-      'Deezer rate limit exceeded. Please try again shortly.',
-    )
+    throw new ServiceUnavailableException('Deezer rate limit exceeded. Please try again shortly.')
   }
 }
