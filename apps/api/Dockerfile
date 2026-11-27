@@ -15,9 +15,14 @@ COPY tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/api ./apps/api
 RUN pnpm --filter @music-app/shared-types build \
- && pnpm --filter @music-app/api prisma:generate \
+ && DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm --filter @music-app/api prisma:generate \
  && pnpm --filter @music-app/api build \
  && pnpm --filter @music-app/api deploy --prod /out
+
+# one-shot: applies Prisma migrations (prisma CLI is a devDependency, so it lives here, not in runtime)
+FROM build AS migrate
+WORKDIR /repo/apps/api
+CMD ["pnpm", "prisma:deploy"]
 
 FROM node:24-alpine AS runtime
 ENV NODE_ENV=production
