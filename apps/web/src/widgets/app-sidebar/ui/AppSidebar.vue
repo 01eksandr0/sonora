@@ -8,6 +8,9 @@ import {
   IconSearch,
   IconSettings,
   IconUser,
+  IconList,
+  IconDisc,
+  IconUsers,
 } from '@tabler/icons-vue'
 import { ROUTE_NAMES } from '@/app/router/routes'
 import { useSessionStore } from '@/features/auth'
@@ -20,7 +23,12 @@ const discoverLinks = [
   { name: ROUTE_NAMES.search, label: 'Search', icon: IconSearch },
 ]
 
-const libraryLinks = [{ name: ROUTE_NAMES.library, label: 'Favorites', icon: IconLibrary }]
+const libraryLinks = [
+  { name: ROUTE_NAMES.library, label: 'Favorites', icon: IconLibrary },
+  { name: ROUTE_NAMES.playlists, label: 'Playlists', icon: IconList },
+  { name: ROUTE_NAMES.albums, label: 'Albums', icon: IconDisc },
+  { name: ROUTE_NAMES.artists, label: 'Artists', icon: IconUsers },
+]
 
 const mobileLinks = [
   { name: ROUTE_NAMES.home, label: 'Home', icon: IconHome2 },

@@ -1,6 +1,7 @@
 import type {
   AlbumDetails,
   ArtistDetails,
+  AlbumSummary,
   ChartResult,
   Genre,
   Paginated,
@@ -17,6 +18,7 @@ export interface MusicProvider {
   getGenres(): Promise<Genre[]>
   getCharts(): Promise<ChartResult>
   getArtistTopTracks(id: string, limit?: number, offset?: number): Promise<Paginated<TrackSummary>>
+  getArtistAlbums(id: string, limit?: number, offset?: number): Promise<Paginated<AlbumSummary>>
 }
 
 export const MUSIC_PROVIDER = Symbol('MUSIC_PROVIDER')

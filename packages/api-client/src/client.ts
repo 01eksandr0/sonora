@@ -14,6 +14,7 @@ import type {
   SeekTrackRequest,
   UserWithProfile,
   AlbumDetails,
+  AlbumSummary,
   ArtistDetails,
   ChartResult,
   Genre,
@@ -62,6 +63,10 @@ export function createApiClient(options: HttpClientOptions) {
         http.get<ArtistDetails>(`/catalog/artists/${encodeURIComponent(id)}`),
       getArtistTopTracks: (id: string, params?: { limit?: number; offset?: number }) =>
         http.get<Paginated<TrackSummary>>(`/catalog/artists/${encodeURIComponent(id)}/top-tracks`, {
+          query: params,
+        }),
+      getArtistAlbums: (id: string, params?: { limit?: number; offset?: number }) =>
+        http.get<Paginated<AlbumSummary>>(`/catalog/artists/${encodeURIComponent(id)}/albums`, {
           query: params,
         }),
       getGenres: () => http.get<Genre[]>('/catalog/genres'),

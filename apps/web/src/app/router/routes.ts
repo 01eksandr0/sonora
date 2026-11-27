@@ -13,6 +13,9 @@ export const ROUTE_NAMES = {
   album: 'album',
   playlist: 'playlist',
   library: 'library',
+  playlists: 'library-playlists',
+  albums: 'library-albums',
+  artists: 'library-artists',
   profile: 'profile',
   settings: 'settings',
 } as const
@@ -59,6 +62,21 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'library',
         name: ROUTE_NAMES.library,
+        component: () => import('@/pages/app/library'),
+      },
+      {
+        path: 'library/playlists',
+        name: ROUTE_NAMES.playlists,
+        component: () => import('@/pages/app/library'),
+      },
+      {
+        path: 'library/albums',
+        name: ROUTE_NAMES.albums,
+        component: () => import('@/pages/app/library'),
+      },
+      {
+        path: 'library/artists',
+        name: ROUTE_NAMES.artists,
         component: () => import('@/pages/app/library'),
       },
       {

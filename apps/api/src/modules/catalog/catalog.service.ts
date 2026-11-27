@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import type {
   AlbumDetails,
   ArtistDetails,
+  AlbumSummary,
   ChartResult,
   Genre,
   SearchResult,
@@ -60,6 +61,14 @@ export class CatalogService {
 
     return this.cache.getOrSet(cacheKey, 86400, () =>
       this.provider.getArtistTopTracks(id, limit, offset),
+    )
+  }
+
+  async getArtistAlbums(id: string, limit = 25, offset = 0): Promise<Paginated<AlbumSummary>> {
+    const cacheKey = `catalog:artist:${id}:albums:${limit}:${offset}`
+
+    return this.cache.getOrSet(cacheKey, 86400, () =>
+      this.provider.getArtistAlbums(id, limit, offset),
     )
   }
 

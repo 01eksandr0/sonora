@@ -41,6 +41,15 @@ export class CatalogController {
     return this.catalogService.getArtistTopTracks(id, query.limit, query.offset)
   }
 
+  @Get('artists/:id/albums')
+  @ApiOperation({ summary: 'Get artist albums' })
+  @ApiParam({ name: 'id', description: 'Deezer artist ID' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  async getArtistAlbums(@Param('id') id: string, @Query() query: PaginationQueryDto) {
+    return this.catalogService.getArtistAlbums(id, query.limit, query.offset)
+  }
+
   @Get('artists/:id')
   @ApiOperation({ summary: 'Get artist details' })
   @ApiParam({ name: 'id', description: 'Deezer artist ID' })
