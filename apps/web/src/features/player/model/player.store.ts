@@ -102,13 +102,19 @@ export const usePlayerStore = defineStore('player', () => {
 
     // Captured now, so a late event still lands on its own listen after the next track has started.
     playbackId
-      .then((id) => (id ? api.player.emitEvent({ trackId, event, durationSec, playbackId: id }) : null))
+      .then((id) =>
+        id ? api.player.emitEvent({ trackId, event, durationSec, playbackId: id }) : null,
+      )
       .catch(() => {})
   }
 
   // User leaves a track before it ended.
   function reportSkip() {
-    if (currentTrack.value && startedReportedFor === currentTrack.value.providerId && !audio.ended) {
+    if (
+      currentTrack.value &&
+      startedReportedFor === currentTrack.value.providerId &&
+      !audio.ended
+    ) {
       report('skipped', audio.currentTime)
     }
     startedReportedFor = null

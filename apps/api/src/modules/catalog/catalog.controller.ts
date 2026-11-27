@@ -1,11 +1,5 @@
-
 import { Controller, Get, Param, Query } from '@nestjs/common'
-import {
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger'
+import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { CatalogService } from './catalog.service.js'
 import { SearchQueryDto } from './dto/search-query.dto.js'
 import { PaginationQueryDto } from './dto/pagination-query.dto.js'
@@ -13,7 +7,7 @@ import { PaginationQueryDto } from './dto/pagination-query.dto.js'
 @ApiTags('Catalog')
 @Controller('catalog')
 export class CatalogController {
-  constructor(private readonly catalogService: CatalogService) { }
+  constructor(private readonly catalogService: CatalogService) {}
 
   @Get('search')
   @ApiOperation({ summary: 'Search tracks, albums and artists' })
@@ -21,11 +15,7 @@ export class CatalogController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
   async search(@Query() query: SearchQueryDto) {
-    return this.catalogService.search(
-      query.q,
-      query.limit,
-      query.offset,
-    )
+    return this.catalogService.search(query.q, query.limit, query.offset)
   }
 
   @Get('tracks/:id')
@@ -47,15 +37,8 @@ export class CatalogController {
   @ApiParam({ name: 'id', description: 'Deezer artist ID' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  async getArtistTopTracks(
-    @Param('id') id: string,
-    @Query() query: PaginationQueryDto,
-  ) {
-    return this.catalogService.getArtistTopTracks(
-      id,
-      query.limit,
-      query.offset,
-    )
+  async getArtistTopTracks(@Param('id') id: string, @Query() query: PaginationQueryDto) {
+    return this.catalogService.getArtistTopTracks(id, query.limit, query.offset)
   }
 
   @Get('artists/:id')

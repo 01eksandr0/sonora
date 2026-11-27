@@ -27,7 +27,9 @@ export class PlayerQueueService {
         })
         if (collection && Array.isArray(collection.tracks)) {
           const collectionTracks = collection.tracks as unknown as TrackSummary[]
-          const trackIdx = collectionTracks.findIndex((t) => t.providerId === currentTrack.providerId)
+          const trackIdx = collectionTracks.findIndex(
+            (t) => t.providerId === currentTrack.providerId,
+          )
           if (trackIdx !== -1) {
             candidates.push(...collectionTracks.slice(trackIdx + 1))
           } else {
@@ -36,7 +38,9 @@ export class PlayerQueueService {
         }
       } else if (context?.type === 'search' && context.query) {
         const searchRes = await this.catalogService.search(context.query, 25, 0)
-        const trackIdx = searchRes.tracks.items.findIndex((t) => t.providerId === currentTrack.providerId)
+        const trackIdx = searchRes.tracks.items.findIndex(
+          (t) => t.providerId === currentTrack.providerId,
+        )
         if (trackIdx !== -1) {
           candidates.push(...searchRes.tracks.items.slice(trackIdx + 1))
         } else {
@@ -44,7 +48,9 @@ export class PlayerQueueService {
         }
       } else if (context?.type === 'artist' && context.id) {
         const artistTracks = await this.catalogService.getArtistTopTracks(context.id, 25, 0)
-        const trackIdx = artistTracks.items.findIndex((t) => t.providerId === currentTrack.providerId)
+        const trackIdx = artistTracks.items.findIndex(
+          (t) => t.providerId === currentTrack.providerId,
+        )
         if (trackIdx !== -1) {
           candidates.push(...artistTracks.items.slice(trackIdx + 1))
         } else {
@@ -66,7 +72,10 @@ export class PlayerQueueService {
     }
 
     // Fallback: If not enough candidates from context, query current artist's top tracks
-    if (candidates.filter((t) => !excludeIds.has(t.providerId)).length < 5 && currentTrack.artist?.providerId) {
+    if (
+      candidates.filter((t) => !excludeIds.has(t.providerId)).length < 5 &&
+      currentTrack.artist?.providerId
+    ) {
       try {
         const artistTracks = await this.catalogService.getArtistTopTracks(
           currentTrack.artist.providerId,

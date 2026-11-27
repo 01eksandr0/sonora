@@ -32,8 +32,7 @@ const isRefreshing = computed(() => {
       <div>
         <p class="eyebrow">CURATED FOR YOU</p>
         <h1>Find your<br /><span>next favorite.</span></h1>
-        <p class="hero-copy">A handpicked mix from the edges of your taste.
-        </p>
+        <p class="hero-copy">A handpicked mix from the edges of your taste.</p>
       </div>
       <div class="hero-art" aria-hidden="true">
         <span />

@@ -19,7 +19,9 @@ export class PlayerEventDto {
   @Min(0)
   durationSec!: number
 
-  @ApiPropertyOptional({ description: "Id returned by the 'started' event; required for all other events" })
+  @ApiPropertyOptional({
+    description: "Id returned by the 'started' event; required for all other events",
+  })
   @ValidateIf((dto: PlayerEventDto) => dto.event !== 'started')
   @IsString()
   @IsNotEmpty()

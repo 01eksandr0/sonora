@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TrackSummary } from '@music-app/shared-types'
-import {
-  IconMusic,
-  IconPlayerPauseFilled,
-  IconPlayerPlayFilled,
-} from '@tabler/icons-vue'
+import { IconMusic, IconPlayerPauseFilled, IconPlayerPlayFilled } from '@tabler/icons-vue'
 import { usePlayerStore } from '@/features/player'
 import { SonoraEqualizer } from '@/shared/ui'
 
@@ -20,9 +16,7 @@ const emit = defineEmits<{
 
 const playerStore = usePlayerStore()
 
-const isCurrent = computed(
-  () => playerStore.currentTrack?.providerId === props.track.providerId,
-)
+const isCurrent = computed(() => playerStore.currentTrack?.providerId === props.track.providerId)
 const isPlaying = computed(() => isCurrent.value && playerStore.isPlaying)
 
 const formatDuration = (seconds: number) => {

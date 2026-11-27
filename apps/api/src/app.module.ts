@@ -30,4 +30,4 @@ import { LibraryModule } from './modules/library/library.module.js'
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule { }
+export class AppModule {}

@@ -3,16 +3,18 @@
 **Гілка:** `tech-design-9`  
 **Статус:** Чернетка для реалізації  
 **Автор:** Sonora Engineering Team  
-**Дата:** 2026-11-18  
+**Дата:** 2026-11-18
 
 ---
 
 ## 1. Мета та контекст (Overview & Context)
 
 ### 1.1. Номер задачі та назва
+
 - **Задача 9:** Розробка гнучкого бекенд-центричного аудіоплеєра з двосторонньою чергою/історією, примітивним алгоритмом добору наступних пісень, інтеграцією точок входу (клік на пісню в пошуку та на головній), глобальним плаваючим віджетом плеєра (з винятком для сторінки профілю) та збереженням улюблених треків (обране/лайки).
 
 ### 1.2. Посилання на ROADMAP.md
+
 - [ROADMAP.md](../../ROADMAP.md):
   - **Розділ 26 (Catalog API):** Отримання метаданих треків, прев'ю, топ-треків артистів (`/api/catalog/tracks/:id`, `/api/catalog/artists/:id/top-tracks`).
   - **Розділ 28 (Library):** Улюблені треки (`FavoriteTrack` / Liked tracks), ідемпотентні операції `like`/`unlike`.
@@ -36,10 +38,12 @@
 ### 1.3. Поточний стан проекту після Задач 3 та 4
 
 Перед стартом цієї задачі в проекті було реалізовано:
+
 1. **Задача 3:** Головна сторінка (`HomePage.vue`), колекція щотижневих рекомендацій (`RecommendationsModule` на бекенді, таблиця `recommendation_collections`).
 2. **Задача 4:** Сторінка пошуку (`SearchPage.vue`), таби категорій (`All`, `Tracks`, `Artists`, `Albums`), віджет `SearchResults.vue`, компоненти `TrackRow`, `ArtistCard`, `AlbumCard`. У `AppLayout.vue` було розміщено візуальний макет `MusicPlayer.vue`.
 
 **Що зараз відсутнє і є метою Задачі 9:**
+
 - `MusicPlayer.vue` є суто статичним макетом із захардкодженними рядками (`"My Own Summer"`, `"Deftones"`). Немає справжнього аудіо-рушія (`new Audio()`), немає зв'язку з бекендом.
 - `TrackRow.vue` у списку пошуку та на головній є пасивним div: клік по ньому нічого не робить, відтворення не запускається, немає ховер-іконки Play та індикатора `.is-playing`.
 - На бекенді відсутній `PlayerModule` та збереження сесії користувача в Redis.
@@ -87,6 +91,7 @@
 ### 1.5. Scope (Межі робіт)
 
 #### Входить до задачі:
+
 - **База даних (Prisma / PostgreSQL):**
   - Моделі `FavoriteTrack` та `ListeningHistory` у `schema.prisma`.
   - Генерація та застосування міграції `add_favorite_tracks_and_listening_history`.
@@ -107,6 +112,7 @@
   - Оновлення `AppLayout.vue`: приховування плеєра на сторінці профілю та онбордингу, правильний відступ знизу.
 
 #### Не входить до задачі (Non-Goals):
+
 - Складний багатофакторний ML-ранжувальник рекомендацій (це окрема Phase 10).
 - Керування плейлистами (Phase 7 / Розділ 27).
 - Стрімінг повних lossless аудіо-файлів (використовуються 30-секундні mp3-прев'ю Deezer).
@@ -167,6 +173,7 @@ model ListeningHistory {
 ```
 
 Також оновлюємо модель `User`:
+
 ```prisma
 model User {
   // ... існуючі зв'язки
@@ -235,7 +242,7 @@ export interface PlayerSessionState {
   volume: number // 0..100
   updatedAt: number // timestamp ms
   history: TrackSummary[] // стек прослуханих треків назад
-  queue: TrackSummary[]   // черга майбутніх треків вперед
+  queue: TrackSummary[] // черга майбутніх треків вперед
   context?: PlayerContextDto
   isLiked?: boolean
 }
@@ -252,12 +259,12 @@ flowchart TD
     B -- context.type == 'artist' --> D[Викликати catalogService.getArtistTopTracks]
     B -- context.type == 'album' --> E[Викликати catalogService.getAlbum.tracks]
     B -- Немає контексту --> F[Взяти топ-треки артиста поточного треку]
-    
+
     C --> G[Фільтрація дублікатів]
     D --> G
     E --> G
     F --> G
-    
+
     G --> H{Знайдено >= 5 треків?}
     H -- Так --> K[Додати порцію в queue]
     H -- Ні --> I[Fallback: взяти треки з catalogService.getCharts]
@@ -266,6 +273,7 @@ flowchart TD
 ```
 
 **Правила фільтрації кандидатів:**
+
 1. Не додавати треки, які вже є в `history` поточної сесії.
 2. Не додавати `currentTrack.providerId`.
 3. Не дублювати треки, які вже чекають у `queue`.
@@ -309,25 +317,25 @@ flowchart TD
 
 #### Плеєр (`apps/api/src/modules/player/player.controller.ts`)
 
-| Метод | Шлях | Опис | Тіло / Query | Статус |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/player/state` | Отримати поточний стан сесії | — | `200 OK` |
-| `POST` | `/api/player/play` | Запустити трек | `{ trackId: string, context?: PlayerContextDto }` | `200 OK` |
-| `POST` | `/api/player/pause` | Пауза | — | `200 OK` |
-| `POST` | `/api/player/resume` | Продовжити відтворення | — | `200 OK` |
-| `POST` | `/api/player/next` | Наступний трек (з автопідбором) | — | `200 OK` |
-| `POST` | `/api/player/previous`| Попередній трек (історія) | — | `200 OK` |
-| `POST` | `/api/player/seek` | Змінити позицію | `{ positionSec: number }` | `200 OK` |
-| `POST` | `/api/player/event` | Подія життєвого циклу треку | `{ trackId, event, durationSec }` | `200 OK` |
+| Метод  | Шлях                   | Опис                            | Тіло / Query                                      | Статус   |
+| :----- | :--------------------- | :------------------------------ | :------------------------------------------------ | :------- |
+| `GET`  | `/api/player/state`    | Отримати поточний стан сесії    | —                                                 | `200 OK` |
+| `POST` | `/api/player/play`     | Запустити трек                  | `{ trackId: string, context?: PlayerContextDto }` | `200 OK` |
+| `POST` | `/api/player/pause`    | Пауза                           | —                                                 | `200 OK` |
+| `POST` | `/api/player/resume`   | Продовжити відтворення          | —                                                 | `200 OK` |
+| `POST` | `/api/player/next`     | Наступний трек (з автопідбором) | —                                                 | `200 OK` |
+| `POST` | `/api/player/previous` | Попередній трек (історія)       | —                                                 | `200 OK` |
+| `POST` | `/api/player/seek`     | Змінити позицію                 | `{ positionSec: number }`                         | `200 OK` |
+| `POST` | `/api/player/event`    | Подія життєвого циклу треку     | `{ trackId, event, durationSec }`                 | `200 OK` |
 
 #### Бібліотека та Обране (`apps/api/src/modules/library/library.controller.ts`)
 
-| Метод | Шлях | Опис | Тіло / Query | Статус |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/api/library/favorites/tracks/:id` | Додати трек в обране | — | `201 Created` |
-| `DELETE` | `/api/library/favorites/tracks/:id` | Видалити трек з обраного | — | `200 OK` |
-| `GET` | `/api/library/favorites/tracks/status` | Перевірити статус лайка для списку ID | `?ids=1,2,3` | `200 OK` |
-| `GET` | `/api/library/favorites/tracks` | Отримати список улюблених треків | `?limit=50&offset=0` | `200 OK` |
+| Метод    | Шлях                                   | Опис                                  | Тіло / Query         | Статус        |
+| :------- | :------------------------------------- | :------------------------------------ | :------------------- | :------------ |
+| `POST`   | `/api/library/favorites/tracks/:id`    | Додати трек в обране                  | —                    | `201 Created` |
+| `DELETE` | `/api/library/favorites/tracks/:id`    | Видалити трек з обраного              | —                    | `200 OK`      |
+| `GET`    | `/api/library/favorites/tracks/status` | Перевірити статус лайка для списку ID | `?ids=1,2,3`         | `200 OK`      |
+| `GET`    | `/api/library/favorites/tracks`        | Отримати список улюблених треків      | `?limit=50&offset=0` | `200 OK`      |
 
 ---
 
@@ -384,7 +392,7 @@ export const usePlayerStore = defineStore('player', () => {
   const isPlaying = ref(false)
   const currentTime = ref(0)
   const duration = ref(30) // Прев'ю 30 секунд
-  const volume = ref(70)   // 0 - 100
+  const volume = ref(70) // 0 - 100
   const isMuted = ref(false)
   const isLiked = ref(false)
   const history = ref<TrackSummary[]>([])
@@ -407,8 +415,12 @@ export const usePlayerStore = defineStore('player', () => {
     await next()
   })
 
-  audio.addEventListener('play', () => { isPlaying.value = true })
-  audio.addEventListener('pause', () => { isPlaying.value = false })
+  audio.addEventListener('play', () => {
+    isPlaying.value = true
+  })
+  audio.addEventListener('pause', () => {
+    isPlaying.value = false
+  })
 
   // Дії (Actions)
   async function playTrack(track: TrackSummary, ctx?: PlayerContext) {
@@ -521,6 +533,7 @@ export const usePlayerStore = defineStore('player', () => {
 ### 4.3. Оновлення `TrackRow.vue`: Точка входу до відтворення
 
 Компонент `TrackRow.vue` отримує:
+
 - Підтримку ховеру: номер треку замінюється на іконку `IconPlayerPlayFilled`.
 - Стан програвання: якщо цей трек активний і грає, відображається підсвічування зеленим кольором (`.is-playing`), іконка `IconPlayerPauseFilled` або `IconPlayerPlayFilled`.
 - Клік на весь рядок викликає подію `@play`.
@@ -604,6 +617,7 @@ function handleClick() {
 ### 4.4. Оновлення `MusicPlayer.vue`: Робочий віджет
 
 Компонент підключається до `usePlayerStore`, відображає реальні дані поточного треку:
+
 - Обкладинка треку, назва та виконавець.
 - Кнопка-сердечко змінює статус лайка через `playerStore.toggleLike()`.
 - Кнопки `previous`, `togglePlay`, `next` викликають методи стору.
@@ -628,7 +642,9 @@ const route = useRoute()
 const playerStore = usePlayerStore()
 
 const isOnboarding = computed(() => route.name === ROUTE_NAMES.onboarding)
-const isProfile = computed(() => route.name === ROUTE_NAMES.profile || route.path.endsWith('/profile'))
+const isProfile = computed(
+  () => route.name === ROUTE_NAMES.profile || route.path.endsWith('/profile'),
+)
 
 // Плеєр показується на всіх сторінках, КРІМ онбордингу та профілю, і тільки коли є вибраний трек
 const showPlayer = computed(

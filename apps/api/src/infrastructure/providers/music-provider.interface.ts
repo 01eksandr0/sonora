@@ -16,7 +16,7 @@ export interface MusicProvider {
   getArtist(id: string): Promise<ArtistDetails>
   getGenres(): Promise<Genre[]>
   getCharts(): Promise<ChartResult>
-  getArtistTopTracks(id: string, limit?: number, offset?: number,): Promise<Paginated<TrackSummary>>
+  getArtistTopTracks(id: string, limit?: number, offset?: number): Promise<Paginated<TrackSummary>>
 }
 
 export const MUSIC_PROVIDER = Symbol('MUSIC_PROVIDER')

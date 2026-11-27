@@ -114,7 +114,10 @@ describe('PlayerService', () => {
       queue: [mockNextTrack],
     })
 
-    catalogService.getFreshTrack.mockResolvedValue({ ...mockNextTrack, previewUrl: 'https://fresh' })
+    catalogService.getFreshTrack.mockResolvedValue({
+      ...mockNextTrack,
+      previewUrl: 'https://fresh',
+    })
 
     const state = await playerService.next('user-1')
 
@@ -217,7 +220,11 @@ describe('PlayerService', () => {
     const { playbackId } = await playerService.emitEvent('user-1', '100', 'started', 0)
     expect(playbackId).toBe('hist-1')
 
-    prisma.listeningHistory.findFirst.mockResolvedValue({ id: 'hist-1', listenedSeconds: 10, completed: false })
+    prisma.listeningHistory.findFirst.mockResolvedValue({
+      id: 'hist-1',
+      listenedSeconds: 10,
+      completed: false,
+    })
     await playerService.emitEvent('user-1', '100', 'completed', 30, playbackId)
 
     expect(prisma.listeningHistory.findFirst).toHaveBeenCalledWith({
@@ -231,9 +238,9 @@ describe('PlayerService', () => {
   })
 
   it('rejects follow-up events for an unknown playback', async () => {
-    await expect(playerService.emitEvent('user-1', '100', 'skipped', 5, 'foreign-id')).rejects.toBeInstanceOf(
-      NotFoundException,
-    )
+    await expect(
+      playerService.emitEvent('user-1', '100', 'skipped', 5, 'foreign-id'),
+    ).rejects.toBeInstanceOf(NotFoundException)
     expect(prisma.listeningHistory.update).not.toHaveBeenCalled()
   })
 

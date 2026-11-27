@@ -47,7 +47,11 @@ export class PlayerService {
     }
   }
 
-  async play(userId: string, trackId: string, context?: PlayerContext): Promise<PlayerSessionState> {
+  async play(
+    userId: string,
+    trackId: string,
+    context?: PlayerContext,
+  ): Promise<PlayerSessionState> {
     const track = await this.catalogService.getFreshTrack(trackId)
     if (!track) {
       throw new NotFoundException(`Track ${trackId} not found`)
@@ -71,7 +75,9 @@ export class PlayerService {
           const collectionTracks = collection.tracks as unknown as TrackSummary[]
           const trackIdx = collectionTracks.findIndex((t) => t.providerId === track.providerId)
           if (trackIdx > 0) {
-            const previousCollectionTracks = collectionTracks.slice(0, trackIdx).filter((t) => !!t.previewUrl)
+            const previousCollectionTracks = collectionTracks
+              .slice(0, trackIdx)
+              .filter((t) => !!t.previewUrl)
             history.unshift(...previousCollectionTracks.reverse())
             if (history.length > 50) {
               history.length = 50
@@ -85,7 +91,12 @@ export class PlayerService {
 
     const excludeIds = this.buildExcludeIds(track, history, [], context)
 
-    const upcoming = await this.playerQueueService.getUpcomingCandidates(track, context, excludeIds, userId)
+    const upcoming = await this.playerQueueService.getUpcomingCandidates(
+      track,
+      context,
+      excludeIds,
+      userId,
+    )
     const isLiked = await this.checkIsLiked(userId, track.providerId)
 
     const newState: PlayerSessionState = {

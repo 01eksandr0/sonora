@@ -9,10 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <RouterLink
-    :to="{ name: 'artist', params: { id: artist.providerId } }"
-    class="artist-card"
-  >
+  <RouterLink :to="{ name: 'artist', params: { id: artist.providerId } }" class="artist-card">
     <img
       v-if="artist.images.medium"
       :src="artist.images.medium"

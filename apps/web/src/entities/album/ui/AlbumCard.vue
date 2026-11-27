@@ -12,10 +12,7 @@ const getReleaseYear = (releaseDate: string | null) => {
 </script>
 
 <template>
-  <RouterLink
-    :to="{ name: 'album', params: { id: album.providerId } }"
-    class="album-card"
-  >
+  <RouterLink :to="{ name: 'album', params: { id: album.providerId } }" class="album-card">
     <img
       v-if="album.cover.medium"
       :src="album.cover.medium"

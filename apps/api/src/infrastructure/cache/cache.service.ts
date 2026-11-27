@@ -10,7 +10,7 @@ import { REDIS_CLIENT } from './redis.constants.js'
 export class CacheService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CacheService.name)
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) { }
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   async onModuleInit() {
     await this.redis.connect()
