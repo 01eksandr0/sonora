@@ -39,6 +39,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @music-app/api prisma:generate
+      # lint/typecheck resolve workspace packages from their dist/
+      - run: pnpm --filter "./packages/*" build
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
